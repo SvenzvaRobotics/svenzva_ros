@@ -1,0 +1,149 @@
+<robot
+  name="iner_gripper">
+  <link
+    name="link_gripper">
+    <inertial>
+      <origin
+        xyz="0.0186360000045784 -0.0239524819276603 -4.86322103742292E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.00620045258525398" />
+      <inertia
+        ixx="2.10353421967729E-06"
+        ixy="4.27721992210268E-16"
+        ixz="1.76022005561585E-17"
+        iyy="1.23544763674616E-06"
+        iyz="-4.55763759743226E-10"
+        izz="1.33321993660794E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_gripper/meshes/link_gripper.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.815686274509804 0.403921568627451 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_gripper/meshes/link_gripper.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="link_finger0">
+    <inertial>
+      <origin
+        xyz="-0.0017581 -0.002764 -0.00033443"
+        rpy="0 0 0" />
+      <mass
+        value="0.051949" />
+      <inertia
+        ixx="4.6849E-05"
+        ixy="1.3689E-06"
+        ixz="1.6512E-08"
+        iyy="1.1379E-05"
+        iyz="4.819E-06"
+        izz="4.442E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_gripper/meshes/link_finger0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_gripper/meshes/link_finger0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_finger0"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="link_gripper" />
+    <child
+      link="link_finger0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="link_finger1">
+    <inertial>
+      <origin
+        xyz="0.0016323 -0.0027478 -0.00023083"
+        rpy="0 0 0" />
+      <mass
+        value="0.051949" />
+      <inertia
+        ixx="4.6873E-05"
+        ixy="-1.1823E-06"
+        ixz="-5.1839E-08"
+        iyy="1.1382E-05"
+        iyz="4.8186E-06"
+        izz="4.4447E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_gripper/meshes/link_finger1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_gripper/meshes/link_finger1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_finger1"
+    type="continuous">
+    <origin
+      xyz="0.037272 0.0001036 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="link_gripper" />
+    <child
+      link="link_finger1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+</robot>

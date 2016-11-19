@@ -1,0 +1,414 @@
+<robot
+  name="iner_arm">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.10568 0.033683 0.054911"
+        rpy="0 0 0" />
+      <mass
+        value="0.04405" />
+      <inertia
+        ixx="1.0357E-05"
+        ixy="-2.3421E-06"
+        ixz="-3.5104E-07"
+        iyy="1.0196E-05"
+        iyz="-5.5893E-07"
+        izz="1.0375E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="link_1">
+    <inertial>
+      <origin
+        xyz="-0.0067092 0.037484 0.00041284"
+        rpy="0 0 0" />
+      <mass
+        value="0.090555" />
+      <inertia
+        ixx="4.7499E-05"
+        ixy="9.4292E-07"
+        ixz="1.333E-08"
+        iyy="2.4065E-05"
+        iyz="-1.0903E-06"
+        izz="3.8743E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_1"
+    type="continuous">
+    <origin
+      xyz="0.11018 -0.083065 0.040788"
+      rpy="-0.13544 -1.303 -3.1337" />
+    <parent
+      link="base_link" />
+    <child
+      link="link_1" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="link_2">
+    <inertial>
+      <origin
+        xyz="-2.8134E-05 0.17769 -0.00030137"
+        rpy="0 0 0" />
+      <mass
+        value="0.099085" />
+      <inertia
+        ixx="0.00044426"
+        ixy="-4.2327E-07"
+        ixz="-3.2462E-09"
+        iyy="2.9775E-05"
+        iyz="1.8857E-06"
+        izz="0.00043101" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_2"
+    type="continuous">
+    <origin
+      xyz="-0.007 0.054954 0"
+      rpy="1.6636E-15 -1.0547E-15 -1.6842" />
+    <parent
+      link="link_1" />
+    <child
+      link="link_2" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="link_3">
+    <inertial>
+      <origin
+        xyz="-3.4328E-05 0.17815 -0.0015087"
+        rpy="0 0 0" />
+      <mass
+        value="0.098766" />
+      <inertia
+        ixx="0.00043381"
+        ixy="-4.1909E-07"
+        ixz="4.2597E-10"
+        iyy="2.7812E-05"
+        iyz="9.0459E-07"
+        izz="0.00042622" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="link_3"
+    type="continuous">
+    <origin
+      xyz="0 0.228 0"
+      rpy="2.3606 -1.5708 0" />
+    <parent
+      link="link_2" />
+    <child
+      link="link_3" />
+    <axis
+      xyz="-1 0 0" />
+  </joint>
+  <link
+    name="link_4">
+    <inertial>
+      <origin
+        xyz="-0.00094604 0.1494 0.0020106"
+        rpy="0 0 0" />
+      <mass
+        value="0.063756" />
+      <inertia
+        ixx="0.00022531"
+        ixy="-3.4607E-06"
+        ixz="1.1736E-07"
+        iyy="1.6701E-05"
+        iyz="4.8739E-06"
+        izz="0.00022446" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_4"
+    type="continuous">
+    <origin
+      xyz="0 0.228 0"
+      rpy="-1.0153 -1.5708 2.3349" />
+    <parent
+      link="link_3" />
+    <child
+      link="link_4" />
+    <axis
+      xyz="1 0 0" />
+  </joint>
+  <link
+    name="link_5">
+    <inertial>
+      <origin
+        xyz="1.7142E-06 -0.011217 -0.00064082"
+        rpy="0 0 0" />
+      <mass
+        value="0.044678" />
+      <inertia
+        ixx="1.2897E-05"
+        ixy="-1.3142E-09"
+        ixz="-2.3988E-10"
+        iyy="8.2116E-06"
+        iyz="6.7666E-08"
+        izz="1.0739E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_5"
+    type="fixed">
+    <origin
+      xyz="0.048555 0.19763 0.00025"
+      rpy="0.13226 1.5708 0" />
+    <parent
+      link="link_4" />
+    <child
+      link="link_5" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="link_6">
+    <inertial>
+      <origin
+        xyz="0.018524 -0.024522 -0.00063961"
+        rpy="0 0 0" />
+      <mass
+        value="0.055835" />
+      <inertia
+        ixx="5.163E-05"
+        ixy="-3.7356E-06"
+        ixz="-2.4302E-08"
+        iyy="1.3604E-05"
+        iyz="5.0173E-06"
+        izz="5.0884E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_6"
+    type="continuous">
+    <origin
+      xyz="0 0 0.0839123211120983"
+      rpy="1.57079632679489 -2.66453525910038E-15 1.96947386551158" />
+    <parent
+      link="link_5" />
+    <child
+      link="link_6" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="link_7">
+    <inertial>
+      <origin
+        xyz="-0.018849 -0.023961 -0.00064876"
+        rpy="0 0 0" />
+      <mass
+        value="0.055048" />
+      <inertia
+        ixx="5.0365E-05"
+        ixy="3.1424E-06"
+        ixz="3.4598E-08"
+        iyy="1.3286E-05"
+        iyz="4.9973E-06"
+        izz="4.9346E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_7.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://iner_arm/meshes/link_7.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_7"
+    type="continuous">
+    <origin
+      xyz="0 0 0.0839123211120983"
+      rpy="1.57079632679489 -2.66453525910038E-15 1.96947386551158" />
+    <parent
+      link="link_5" />
+    <child
+      link="link_7" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+</robot>
