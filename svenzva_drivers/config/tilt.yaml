@@ -1,3 +1,15 @@
+q3_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: q3_joint
+    joint_speed: 0.3
+    motor:
+        id: 5
+        init: 0
+        min: 0
+        max: 4096
 tilt_controller:
     controller:
         package: dynamixel_controllers
@@ -23,17 +35,3 @@ wrist_controller:
         min: 0
         max: 4096
 
-fingers_controller:
-    controller:
-        package: dynamixel_controllers
-        module: joint_position_controller_dual_motor
-        type: JointPositionControllerDual
-    joint_name: fingers_motor
-    joint_speed: 0.30
-    motor_master:
-        id: 6
-        init: 0
-        min: -2047
-        max: 2047
-    motor_slave:
-        id: 7

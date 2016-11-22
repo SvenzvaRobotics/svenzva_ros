@@ -1,0 +1,6 @@
+<package>
+  <description brief="svenzva_description">svenzva_description</description>
+  <depend package="gazebo" />
+  <author>Maxwell J Svetlik</author>
+  <license>BSD</license>
+</package>

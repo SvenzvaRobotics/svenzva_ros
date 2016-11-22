@@ -4,6 +4,6 @@
     <node name="tilt_controller_spawner" pkg="dynamixel_controllers" type="controller_spawner.py"
           args="--manager=dxl_manager
                 --port pan_tilt_port
-                tilt_controller"
+                wrist_controller"
           output="screen"/>
 </launch>

@@ -1,6 +1,0 @@
-<package>
-  <description brief="iner_gripper">iner_gripper</description>
-  <depend package="gazebo" />
-  <author>me</author>
-  <license>BSD</license>
-</package>
