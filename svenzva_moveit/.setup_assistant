@@ -1,0 +1,8 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: svenzva_description
+    relative_path: robots/svenzva_arm.urdf
+  SRDF:
+    relative_path: config/svenzva_arm.srdf
+  CONFIG:
+    generated_timestamp: 1479792885
