@@ -138,7 +138,7 @@
     type="continuous">
     <origin
       xyz="-0.00700000000002309 0.0549537554950766 0"
-      rpy="1.66359981346176E-15 -1.0547118733939E-15 -1.68424757676597" />
+      rpy="0 0 -1.88424757676597" />
     <parent
       link="link_1" />
     <child
@@ -191,7 +191,7 @@
     type="continuous">
     <origin
       xyz="-0.07037 0.21525 0"
-      rpy="2.3606 -1.5708 0" />
+      rpy="0.3 -1.5708 0" />
     <parent
       link="link_2" />
     <child
@@ -244,7 +244,7 @@
     type="continuous">
     <origin
       xyz="0.00094769 0.228 0"
-      rpy="2.5315 -1.5708 0" />
+      rpy="0 -1.5708 0" />
     <parent
       link="link_3" />
     <child
@@ -297,7 +297,7 @@
     type="continuous">
     <origin
       xyz="-0.002 0.1909 0"
-      rpy="1.0193 1.5708 0" />
+      rpy="0 0 0" />
     <parent
       link="link_4" />
     <child
@@ -350,7 +350,7 @@
     type="continuous">
     <origin
       xyz="-0.00025 0 0.0763"
-      rpy="1.5708 -1.7764E-15 1.5478" />
+      rpy="1.5708 0 1.5478" />
     <parent
       link="link_5" />
     <child

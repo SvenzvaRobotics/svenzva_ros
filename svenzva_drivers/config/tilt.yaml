@@ -1,33 +1,69 @@
-q3_controller:
+joint_1:
     controller:
         package: dynamixel_controllers
         module: joint_position_controller
         type: JointPositionController
-    joint_name: q3_joint
+    joint_name: joint_1
     joint_speed: 0.3
     motor:
-        id: 5
+        id: 0
         init: 0
         min: 0
         max: 4096
-tilt_controller:
+joint_2:
     controller:
         package: dynamixel_controllers
         module: joint_position_controller
         type: JointPositionController
-    joint_name: tilt_joint
+    joint_name: joint_2
+    joint_speed: 0.3
+    motor:
+        id: 1
+        init: 0
+        min: 0
+        max: 4096
+link_3:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: link_3
+    joint_speed: 0.3
+    motor:
+        id: 2
+        init: 0
+        min: 0
+        max: 4096
+joint_4:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: joint_4
+    joint_speed: 0.3
+    motor:
+        id: 3
+        init: 0
+        min: 0
+        max: 4096
+joint_5:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: joint_5
     joint_speed: 0.15
     motor:
         id: 4
         init: 2500
         min: 1500
         max: 3500
-wrist_controller:
+joint_6:
     controller:
         package: dynamixel_controllers
         module: joint_position_controller
         type: JointPositionController
-    joint_name: wrist_joint
+    joint_name: joint_6
     joint_speed: 0.3
     motor:
         id: 5

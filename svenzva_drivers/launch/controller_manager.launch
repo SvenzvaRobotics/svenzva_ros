@@ -11,4 +11,6 @@
                     update_rate: 20
         </rosparam>
     </node>
+
+    <include file="$(find svenzva_drivers)/launch/start_tilt_controller.launch"/>
 </launch>
