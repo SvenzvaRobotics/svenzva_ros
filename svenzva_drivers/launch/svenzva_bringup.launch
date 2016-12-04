@@ -1,7 +1,7 @@
 <launch>
 
     <!-- Set the joint names to be aggregated by the joint state publisher -->
-    <rosparam param="dynamixels">[joint_1, joint_2, link_3, joint_4, joint_5, joint_6 ]</rosparam>
+    <rosparam param="dynamixels">[joint_1, joint_2, joint_3, joint_4, joint_5, joint_6 ]</rosparam>
 
     <!-- Load the URDF/Xacro model of our robot -->
     <param name="robot_description" textfile="$(find svenzva_description)/robots/svenzva_arm.urdf" />

@@ -6,7 +6,7 @@
                 --port pan_tilt_port
                 joint_1
                 joint_2
-                link_3
+                joint_3
                 joint_4
                 joint_5
                 joint_6"
@@ -20,7 +20,7 @@
                 f_arm_controller
                 joint_1
                 joint_2
-                link_3
+                joint_3
                 joint_4
                 joint_5
                 joint_6"

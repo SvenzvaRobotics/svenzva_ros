@@ -40,19 +40,19 @@ def cb_q5(data):
 def pub():
     global q0_loc, q1_loc, q2_loc, q3_loc, q4_loc, q5_loc
     rospy.init_node('enable_gravity_mode', anonymous=True)
-    pub0 = rospy.Publisher('/q0_controller/command', Float64, queue_size=1)
-    pub1 = rospy.Publisher('/q1_controller/command', Float64, queue_size=1)
-    pub2 = rospy.Publisher('/q2_controller/command', Float64, queue_size=1)
-    pub3 = rospy.Publisher('/q3_controller/command', Float64, queue_size=1)
-    pub4 = rospy.Publisher('/q4_controller/command', Float64, queue_size=1)
-    pub5 = rospy.Publisher('/q5_controller/command', Float64, queue_size=1)
+    pub0 = rospy.Publisher('/joint_1/command', Float64, queue_size=1)
+    pub1 = rospy.Publisher('/joint_2/command', Float64, queue_size=1)
+    pub2 = rospy.Publisher('/joint_3/command', Float64, queue_size=1)
+    pub3 = rospy.Publisher('/joint_4/command', Float64, queue_size=1)
+    pub4 = rospy.Publisher('/joint_5/command', Float64, queue_size=1)
+    pub5 = rospy.Publisher('/joint_6/command', Float64, queue_size=1)
 
-    rospy.Subscriber("/q0_controller/state", JointState, cb_q0)
-    rospy.Subscriber("/q1_controller/state", JointState, cb_q1)
-    rospy.Subscriber("/q2_controller/state", JointState, cb_q2)
-    rospy.Subscriber("/q3_controller/state", JointState, cb_q3)
-    rospy.Subscriber("/q4_controller/state", JointState, cb_q4)
-    rospy.Subscriber("/q5_controller/state", JointState, cb_q5)
+    rospy.Subscriber("/joint_1/state", JointState, cb_q0)
+    rospy.Subscriber("/joint_2/state", JointState, cb_q1)
+    rospy.Subscriber("/joint_3/state", JointState, cb_q2)
+    rospy.Subscriber("/joint_4/state", JointState, cb_q3)
+    rospy.Subscriber("/joint_5/state", JointState, cb_q4)
+    rospy.Subscriber("/joint_6/state", JointState, cb_q5)
 
     rospy.loginfo("START: Enabling gravity mode")
 

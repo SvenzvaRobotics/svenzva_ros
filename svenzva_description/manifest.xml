@@ -1,6 +1,6 @@
 <package>
-  <description brief="svenzva_description">svenzva_description</description>
+  <description brief="12.1.16_robot_arm_THREE">svenzva_description</description>
   <depend package="gazebo" />
-  <author>Maxwell J Svetlik</author>
+  <author>me</author>
   <license>BSD</license>
 </package>
