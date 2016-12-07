@@ -52,7 +52,7 @@ joint_5:
         module: joint_position_controller
         type: JointPositionController
     joint_name: joint_5
-    joint_speed: 0.15
+    joint_speed: 0.3
     motor:
         id: 4
         init: 2560
@@ -70,4 +70,17 @@ joint_6:
         init: 512
         min: 0
         max: 4096
-
+finger_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller_dual_motor
+        type: JointPositionControllerDual
+    joint_name: dual_motor
+    joint_speed: 0.1
+    motor_master:
+        id: 6
+        init: 0
+        min: 2047
+        max: 2850
+    motor_slave:
+        id: 7
