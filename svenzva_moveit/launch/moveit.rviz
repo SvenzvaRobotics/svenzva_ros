@@ -69,6 +69,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          ee_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           link_1:
             Alpha: 1
             Show Axes: false
@@ -117,7 +121,7 @@ Visualization Manager:
         Colliding Link Color: 255; 0; 0
         Goal State Alpha: 1
         Goal State Color: 250; 128; 0
-        Interactive Marker Size: 0
+        Interactive Marker Size: 0.25
         Joint Violation Color: 255; 0; 255
         Planning Group: svenzva_arm
         Query Goal State: true
@@ -147,6 +151,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          ee_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           link_1:
             Alpha: 1
             Show Axes: false
@@ -208,10 +216,10 @@ Visualization Manager:
         Z: 2.23518e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.369797
+      Pitch: 0.614797
       Target Frame: base_link
       Value: XYOrbit (rviz)
-      Yaw: 2.97995
+      Yaw: 4.22995
     Saved: ~
 Window Geometry:
   Displays:

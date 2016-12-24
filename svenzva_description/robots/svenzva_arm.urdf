@@ -91,7 +91,7 @@
     <child
       link="link_1" />
     <axis
-      xyz="0 1 0" />
+      xyz="0 -1 0" />
   </joint>
   <link
     name="link_2">
@@ -360,7 +360,7 @@
     <child
       link="link_6" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
   </joint>
   <link
     name="ee_link">
