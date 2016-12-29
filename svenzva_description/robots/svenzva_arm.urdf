@@ -136,7 +136,7 @@
   <joint
     name="joint_2"
     type="revolute">
-    <limit effort="30" velocity="3.0" lower="-2.0" upper="2.0" />
+    <limit effort="30" velocity="1.0" lower="-2.0" upper="2.0" />
     <origin
       xyz="-0.00699999999999987 -0.055 0"
       rpy="1.57079632679488 -1.38777878078116E-15 -1.57079632679488" />
@@ -190,7 +190,7 @@
   <joint
     name="joint_3"
     type="revolute">
-    <limit effort="30" velocity="3.0" lower="-2.0" upper="2.0" />
+    <limit effort="30" velocity="1.0" lower="-2.3" upper="2.3" />
     <origin
       xyz="0.2267 0 0"
       rpy="1.72604985859693E-14 -1.72604985859694E-14 -1.38777878078145E-15" />
@@ -244,7 +244,7 @@
   <joint
     name="joint_4"
     type="revolute">
-    <limit effort="30" velocity="3.0" lower="-2.0" upper="2.0" />
+    <limit effort="30" velocity="1.0" lower="-2.15" upper="2.15" />
     <origin
       xyz="0.1377 -0.000399999966000264 0"
       rpy="-1.5707963267949 -5.02171683388957E-18 -0.00827101619955667" />
@@ -298,7 +298,7 @@
   <joint
     name="joint_5"
     type="revolute">
-    <limit effort="30" velocity="3.0" lower="-1.55" upper="1.65" />
+    <limit effort="30" velocity="1.0" lower="-1.85" upper="1.85" />
     <origin
       xyz="0.1282 -0.00269999999999876 0"
       rpy="-1.5707963267949 -2.77729228503887E-15 -3.14159265358979" />

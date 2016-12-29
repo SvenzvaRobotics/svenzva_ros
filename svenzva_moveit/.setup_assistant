@@ -5,4 +5,4 @@ moveit_setup_assistant_config:
   SRDF:
     relative_path: config/svenzva_arm.srdf
   CONFIG:
-    generated_timestamp: 1482552562
+    generated_timestamp: 1482900499

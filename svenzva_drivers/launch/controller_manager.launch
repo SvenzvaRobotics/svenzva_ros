@@ -12,5 +12,5 @@
         </rosparam>
     </node>
 
-    <include file="$(find svenzva_drivers)/launch/start_torque_control.launch"/>
+    <include file="$(find svenzva_drivers)/launch/start_tilt_controller.launch"/>
 </launch>
