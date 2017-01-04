@@ -1,6 +1,7 @@
 <launch>
     <!-- Start tilt joint controller -->
     <rosparam file="$(find svenzva_drivers)/config/tilt.yaml" command="load"/>
+    <rosparam file="$(find svenzva_drivers)/config/compliance_controller.yaml" command="load"/>
     <node name="tilt_controller_spawner" pkg="dynamixel_controllers" type="controller_spawner.py"
           args="--manager=dxl_manager
                 --port pan_tilt_port
@@ -10,7 +11,8 @@
                 joint_4
                 joint_5
                 joint_6
-                finger_controller"
+                finger_controller
+                force_compliance"
           output="screen"/>
 
     <!-- Start joints trajectory controller controller -->

@@ -82,7 +82,8 @@
   </link>
   <joint
     name="joint_1"
-    type="continuous">
+    type="revolute">
+    <limit effort="30" velocity="1.0" lower="-3.14" upper="3.14" />
     <origin
       xyz="0.183061688655131 -0.0119999999999999 0.0385000000000039"
       rpy="-1.5707963267949 -6.12303176911189E-17 -1.5707963267949" />
@@ -351,7 +352,8 @@
   </link>
   <joint
     name="joint_6"
-    type="continuous">
+    type="revolute">
+    <limit effort="30" velocity="1.0" lower="-3.14" upper="3.14" />
     <origin
       xyz="-0.0891078454541699 -0.000699989976996301 -0.0124999999999946"
       rpy="-1.5707963267949 -1.47451495458029E-15 1.5707963267949" />

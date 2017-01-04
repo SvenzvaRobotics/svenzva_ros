@@ -26,6 +26,12 @@ def talker():
     cmd = Float64()
     cmd.data = starting_pos
 
+    ##NOTE:
+        """
+            TODO: With torque limit in place, can just send to a point
+                """
+
+
     while not rospy.is_shutdown() and not hit_cutoff:
         rospy.loginfo("Load: %f", finger_load)
         cmd.data = cmd.data + 0.1
