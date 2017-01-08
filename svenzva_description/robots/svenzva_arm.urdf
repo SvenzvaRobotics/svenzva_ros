@@ -353,7 +353,7 @@
   <joint
     name="joint_6"
     type="revolute">
-    <limit effort="30" velocity="1.0" lower="-3.14" upper="3.14" />
+    <limit effort="30" velocity="1.0" lower="-6.0" upper="0.0" />
     <origin
       xyz="-0.0891078454541699 -0.000699989976996301 -0.0124999999999946"
       rpy="-1.5707963267949 -1.47451495458029E-15 1.5707963267949" />
