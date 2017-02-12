@@ -77,8 +77,13 @@ class JointStatePublisher():
         msg.position = []
         msg.velocity = []
         msg.effort = []
+<<<<<<< Updated upstream
        
         for joint in self.joint_states.values():
+=======
+
+        for joint in sorted(self.joint_states.values(), key = lambda v : v.name):
+>>>>>>> Stashed changes
             msg.name.append(joint.name)
             msg.position.append(joint.position)
             msg.velocity.append(joint.velocity)
