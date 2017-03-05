@@ -82,7 +82,8 @@
   </link>
   <joint
     name="joint_1"
-    type="continuous">
+    type="revolute">
+    <limit effort="30" velocity="1.0" lower="0.0" upper="6.0" />
     <origin
       xyz="0.013 0 0.040487"
       rpy="1.5708 -1.1432E-16 -0.01434" />
@@ -199,7 +200,7 @@
     <child
       link="link_3" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
   </joint>
   <link
     name="link_4">
@@ -253,7 +254,7 @@
     <child
       link="link_4" />
     <axis
-      xyz="0 0 0.999999999960484" />
+      xyz="0 0 -1.0" />
   </joint>
   <link
     name="link_5">
@@ -307,7 +308,7 @@
     <child
       link="link_5" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
   </joint>
   <link
     name="link_6">
@@ -362,4 +363,13 @@
     <axis
       xyz="0 0 1" />
   </joint>
+
+  <link name="ee_link"> </link>
+  
+  <joint name="ee_joint" type="fixed">
+    <parent link="link_6"/>
+    <child link="ee_link"/>
+    <origin xyz="0.015 0 0.15"/>
+  </joint>
+
 </robot>

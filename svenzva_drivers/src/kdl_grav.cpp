@@ -34,6 +34,7 @@ int main(){
       jnt_qdd(i) = 0.0;
       jnt_wrenches.push_back(KDL::Wrench());
     }
+    jnt_q(1) = 1.570;
 
     // Kinematics 
     KDL::ChainFkSolverPos_recursive fkSolver = KDL::ChainFkSolverPos_recursive(chain);
@@ -41,7 +42,7 @@ int main(){
     fkSolver.JntToCart(jnt_q, fkKDL);
 
     // Compute Dynamics 
-    KDL::Vector gravity(-9.81, 0.0, 0.0);
+    KDL::Vector gravity(0.0, 0.0, -9.81);
     KDL::ChainIdSolver_RNE gcSolver = KDL::ChainIdSolver_RNE(chain, gravity);
     int ret = gcSolver.CartToJnt(jnt_q, jnt_qd, jnt_qdd, jnt_wrenches,jnt_taugc);
     if (ret < 0) ROS_ERROR("KDL: inverse dynamics ERROR");
