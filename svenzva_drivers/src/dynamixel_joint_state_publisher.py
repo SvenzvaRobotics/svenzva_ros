@@ -38,7 +38,7 @@ class JointStatePublisher():
     def __init__(self):
         rospy.init_node('dynamixel_joint_state_publisher', anonymous=True)
 
-        rate = rospy.get_param('~rate', 50)
+        rate = rospy.get_param('~rate', 20)
         r = rospy.Rate(rate)
 
         dynamixels = rospy.get_param('dynamixels', '')
@@ -78,7 +78,7 @@ class JointStatePublisher():
         msg.velocity = []
         msg.effort = []
 
-        for joint in self.joint_states.values():
+        for joint in sorted(self.joint_states.values(), key = lambda v : v.name):
             msg.name.append(joint.name)
             msg.position.append(joint.position)
             msg.velocity.append(joint.velocity)
