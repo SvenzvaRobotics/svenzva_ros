@@ -1,6 +1,6 @@
 <launch>
 
-    <arg name="data_frequency" default="10"/>
+    <arg name="data_frequency" default="25"/>
     <arg name="namespace" value="revel"/>
 
     <!-- Set the joint names to be aggregated by the joint state publisher -->
@@ -19,5 +19,8 @@
         <param name="arm_namespace" value="$(arg namespace)"/>
         <param name="update_rate" value="$(arg data_frequency)"/>
     </node>
+
+    <!-- Start dynamics module -->
+    <node name="revel_dynamic_model" type="svenzva_dynamics" pkg="svenzva_drivers" output="screen"/>
 
 </launch>
