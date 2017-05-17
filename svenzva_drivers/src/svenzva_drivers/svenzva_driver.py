@@ -39,6 +39,7 @@ import rospy
 import rospkg
 import actionlib
 import yaml
+import rospkg
 
 from collections import defaultdict, deque
 from threading import Thread
@@ -56,6 +57,8 @@ from svenzva_drivers.srv import *
 from trajectory_msgs.msg import JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from svenzva_msgs.msg import MotorState, MotorStateList
+
+
 
 class SvenzvaDriver:
 
@@ -224,33 +227,30 @@ class SvenzvaDriver:
         self.dxl_io.set_torque_enabled(2, 1)
         self.dxl_io.set_torque_enabled(3, 1)
 
-        self.dxl_io.set_operation_mode(1, 0) #change back to 5 for pos
-        self.dxl_io.set_operation_mode(2, 0) #change back to 5 for pos
-        self.dxl_io.set_operation_mode(3, 0) #change back to 5 for pos
+        self.dxl_io.set_operation_mode(1, 0)
+        self.dxl_io.set_operation_mode(2, 0)
+        self.dxl_io.set_operation_mode(3, 0)
 
 
-        self.dxl_io.set_operation_mode(4, 0) #change back to 5 for pos
+        self.dxl_io.set_operation_mode(4, 0)
         self.dxl_io.set_torque_enabled(4, 1)
 
 
-        self.dxl_io.set_operation_mode(4, 0) #change back to 5 for pos
+        self.dxl_io.set_operation_mode(4, 0)
         self.dxl_io.set_torque_enabled(5, 1)
 
-        self.dxl_io.set_operation_mode(6, 0) #change back to 5 for pos
+        self.dxl_io.set_operation_mode(6, 0)
         self.dxl_io.set_torque_enabled(6, 1)
 
         self.compliance_controller = SvenzvaComplianceController(self.port_namespace, self.dxl_io, True)
         rospy.sleep(0.1)
         Thread(target=self.compliance_controller.start).start()
 
-        #below are good for compliance
-        #for i in range(0, 6):
-        #    self.dxl_io.set_acceleration_profile(i, 4)
-        #    self.dxl_io.set_velocity_profile(i, 10)
-
 
     def start_modules(self):
         global traj_client
+
+        #compliance_demonstration is an experimental dynamic compliance module
         compliance_demonstration = True
 
         jtac = JointTrajectoryActionController(self.port_namespace, self.dxl_io, self.current_state)
@@ -276,47 +276,53 @@ class SvenzvaDriver:
             Thread(target=self.compliance_controller.start).start()
             #Thread(target=self.compliance_controller.update_state).start()
 
-    #TODO: read from yaml
     """
     Initialize internal motor parameters that are reset when powered down.
     Enables torque mode.
+
+    Uses settings in ../config/control_params.yaml
     """
     #NOTE: Due to dynamixel limitations, initial encoder values must be [-4096, 4096]
     #otherwise, the motor_states will be inaccurate
     def initialze_motor_states(self):
+        rospack = rospkg.RosPack()
+        path = rospack.get_path('svenzva_drivers')
+
+        params = ''
+        with open( path+"/config/control_params.yaml", 'r') as stream:
+            try:
+                params = yaml.load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+                rospy.logerr("Unable to open control_params.yaml. Exiting driver.")
+                exit()
+
+
         teaching_mode = False
-        gr = [4,6,6,4,4,1,1]
         if teaching_mode:
             self.teaching_mode()
             return
 
         for i in range(self.min_motor_id, self.max_motor_id + 1):
-            self.dxl_io.set_operation_mode(i, 5)
+            self.dxl_io.set_operation_mode(i, params[i]['mode'])
             self.dxl_io.set_torque_enabled(i, 1)
-            #self.dxl_io.set_position_p_gain(i, 80)
-            #self.dxl_io.set_position_i_gain(i, 0)
-            #self.dxl_io.set_position_d_gain(i,0)
 
-            #self.dxl_io.set_moving_threshold(i, 1)
+            self.dxl_io.set_position_p_gain(i, params[i]['p'])
+            self.dxl_io.set_position_i_gain(i, params[i]['i'])
+            self.dxl_io.set_position_d_gain(i, params[i]['d'])
+            self.dxl_io.set_acceleration_profile(i, params[i]['acceleration'])
+            self.dxl_io.set_velocity_profile(i, params[i]['velocity'])
 
-            #below are good for trajectories
-            self.dxl_io.set_acceleration_profile(i, 5+gr[i-1])
-            self.dxl_io.set_velocity_profile(i, 80+gr[i-1])
-            rospy.sleep(0.1)
-
-
-        self.dxl_io.set_torque_enabled(7, 0)
-        self.dxl_io.set_operation_mode(7, 0)
-        self.dxl_io.set_torque_enabled(7, 1)
-        self.dxl_io.set_position_p_gain(6, 500)
-        self.dxl_io.set_position_d_gain(6, 900)
 
         #set current / torque limit for gripper
         self.dxl_io.set_goal_current(7, 0)
         self.dxl_io.set_current_limit(7, 100)
 
 
+
     """
+    TODO
+
     To increase reliability of packet transmission and reduce the number of packets required to fetch
     motor status, set the indirect addresses on each motor.
     This is REQUIRED to be called before starting any status based callbacks.
@@ -328,6 +334,9 @@ class SvenzvaDriver:
         ...
 
     """
+
+
+
     """
     Given an array of joint positions (in radians), send request to individual servos
     """

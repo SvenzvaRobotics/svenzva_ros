@@ -68,6 +68,7 @@ class RevelGripperActionServer():
         self._as = actionlib.SimpleActionServer("revel/gripper_action", GripperAction, execute_cb=self.gripper_cb, auto_start = False)
         self._as.start()
         self._result = GripperResult()
+        rospy.on_shutdown(self.shutdown)
 
     def gripper_cb(self, goal):
         r = rospy.Rate(0.5)
@@ -97,9 +98,8 @@ class RevelGripperActionServer():
             self.close_gripper(goal.target_current)
 
             if self._as.is_preempt_requested():
-                rospy.loginfo('%s: Preempted' % self._action_name)
                 self._as.set_preempted()
-                success = False
+                self._result.success = False
                 return
         self._result.success = True
         self._as.set_succeeded(self._result)
@@ -149,4 +149,5 @@ class RevelGripperActionServer():
     def close_gripper(self, force):
         self.mx_io.set_torque_goal(self.motor_id, force)
 
-
+    def shutdown(self):
+        self.mx_io.set_torque_goal(self.motor_id,0)
