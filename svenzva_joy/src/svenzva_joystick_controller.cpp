@@ -48,6 +48,7 @@ private:
 
   int linear_x, linear_y, linear_z, angular_, rate_;
   double l_scale_, a_scale_;
+  bool linear_mode;
   ros::Publisher vel_pub_;
   ros::Subscriber joy_sub_;
   ros::Rate r;
@@ -73,9 +74,9 @@ SvenzvaArmJoystick::SvenzvaArmJoystick():
   nh_.param("scale_angular", a_scale_, a_scale_);
   nh_.param("scale_linear", l_scale_, l_scale_);
 
+  linear_mode = true;
   r = ros::Rate(rate_);
   vel_pub_ = nh_.advertise<geometry_msgs::Twist>("revel/eef_velocity", 1);
-
   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 1, &SvenzvaArmJoystick::joyCallback, this);
 
 }
@@ -83,10 +84,18 @@ SvenzvaArmJoystick::SvenzvaArmJoystick():
 void SvenzvaArmJoystick::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   geometry_msgs::Twist twist;
-  //twist.angular.z = a_scale_*joy->axes[angular_];
-  twist.linear.x = l_scale_*joy->axes[linear_x];
-  twist.linear.y = l_scale_*joy->axes[linear_y];
-  twist.linear.z = l_scale_*joy->axes[linear_z];
+
+  if(linear_mode){
+ 
+      twist.linear.x = l_scale_*joy->axes[linear_x];
+      twist.linear.y = l_scale_*joy->axes[linear_y];
+      twist.linear.z = l_scale_*joy->axes[linear_z];
+  }
+  else{
+      twist.angular.x = a_scale_*joy->axes[linear_x];
+      twist.angular.y = a_scale_*joy->axes[linear_y];
+      twist.angular.z = a_scale_*joy->axes[linear_z];
+  }  
   vel_pub_.publish(twist);
   last_cmd = *joy;
 
@@ -98,7 +107,7 @@ void SvenzvaArmJoystick::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         svenzva_msgs::GripperGoal goal;
         if(joy->axes[2] < 0){
             goal.target_action = goal.CLOSE;
-            goal.target_current = 100;
+            goal.target_current = 500;
         }
         else if(joy->axes[5] < 0){
             goal.target_action = goal.OPEN;
@@ -107,7 +116,10 @@ void SvenzvaArmJoystick::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         gripper_action.sendGoal(goal);
   }
 
-
+  if(joy->buttons[0]){
+      linear_mode = !linear_mode;
+      ROS_INFO("Switching modes. Linear mode is now %d", linear_mode);
+  }
 }
 
 
@@ -119,18 +131,6 @@ int main(int argc, char** argv)
   gripper_action.waitForServer();
   
   while(ros::ok()){
-    /*
-    svenzva_msgs::GripperGoal goal;
-    if(last_cmd.axes[2] < 0){
-        goal.target_action = goal.CLOSE;
-        goal.target_current = 100;
-    }
-    else if(last_cmd.axes[5] < 0){
-        goal.target_action = goal.OPEN;
-    }
-
-    gripper_action.sendGoal(goal);
-    */
     ros::spinOnce();
 
   }
