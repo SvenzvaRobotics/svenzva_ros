@@ -210,8 +210,8 @@
     <axis
       xyz="0 0 -1" />
     <limit
-      lower="-2"
-      upper="2"
+      lower="-2.2"
+      upper="2.2"
       effort="30"
       velocity="1.0" />
   </joint>
@@ -269,8 +269,8 @@
     <axis
       xyz="0 0 1" />
     <limit
-      lower="-1.7"
-      upper="1.7"
+      lower="-2.0"
+      upper="2.0"
       effort="30"
       velocity="1.0" />
   </joint>
@@ -453,7 +453,7 @@
   <joint name="ee_joint" type="fixed">
     <parent link="link_6"/>
     <child link="ee_link"/>
-    <origin xyz="0 0 0.0"/>
+    <origin xyz="0 0 -0.1" rpy="3.14159 0 0"/>
   </joint>
 
 </robot>
