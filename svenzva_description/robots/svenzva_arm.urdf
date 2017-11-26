@@ -1,6 +1,14 @@
 <robot
   name="revel">
-  <link
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/revel/</robotNamespace>
+    </plugin>
+  </gazebo>
+
+    <link name="world"/>
+
+    <link
     name="base_link">
     <inertial>
       <origin
@@ -39,8 +47,19 @@
         <mesh
           filename="package://svenzva_description/meshes/base_link.STL" />
       </geometry>
+      <surface>
+        <friction>
+          <ode><mu>10000.0</mu><mu2>10000.0</mu2></ode>
+        </friction>
+      </surface>
     </collision>
   </link>
+  
+  <joint name="world_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+  
   <link
     name="link_1">
     <inertial>
@@ -405,7 +424,7 @@
         iyy="2.31848725352889E-05"
         iyz="2.45012774391977E-20"
         izz="2.8122859649185E-05" />
-    </inertial>  
+    </inertial>
     <visual>
       <origin
         xyz="0 0 0"
@@ -455,5 +474,73 @@
     <child link="ee_link"/>
     <origin xyz="0 0 -0.1" rpy="3.14159 0 0"/>
   </joint>
+
+
+  <transmission name="joint_1_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_1">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_1">
+      <mechanicalReduction>4</mechanicalReduction>
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </actuator>
+  </transmission>
+
+<transmission name="joint_2_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_2">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+  <actuator name="motor_2">
+    <mechanicalReduction>6</mechanicalReduction>
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </actuator>
+  </transmission>
+
+<transmission name="joint_3_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_3">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+  <actuator name="motor_3">
+    <mechanicalReduction>6</mechanicalReduction>
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </actuator>
+  </transmission>
+
+<transmission name="joint_4_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_4">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+  <actuator name="motor_4">
+    <mechanicalReduction>4</mechanicalReduction>
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </actuator>
+  </transmission>
+
+<transmission name="joint_5_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_5">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+  <actuator name="motor_5">
+    <mechanicalReduction>4</mechanicalReduction>
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </actuator>
+  </transmission>
+
+<transmission name="joint_6_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_6">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+  <actuator name="motor_6">
+    <mechanicalReduction>1</mechanicalReduction>
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </actuator>
+  </transmission>
+
 
 </robot>
