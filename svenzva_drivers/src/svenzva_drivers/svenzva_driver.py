@@ -147,7 +147,7 @@ class SvenzvaDriver:
         debug_polling_rate = False
         rates = deque([float(self.update_rate)]*num_events, maxlen=num_events)
         last_time = rospy.Time.now()
-        gr = [4,6,6,4,4,1,1]
+        gr = [4,6,6,1,4,1,1]
         rate = rospy.Rate(self.update_rate)
         id_list = range(self.min_motor_id, self.max_motor_id+1)
         rad_per_tick = 6.2831853 / 4096.0
@@ -262,7 +262,7 @@ class SvenzvaDriver:
         self.dxl_io.set_operation_mode(2, 0)
         self.dxl_io.set_operation_mode(3, 0)
         self.dxl_io.set_operation_mode(4, 0)
-        self.dxl_io.set_operation_mode(4, 0)
+        self.dxl_io.set_operation_mode(5, 0)
         self.dxl_io.set_operation_mode(6, 0)
         self.dxl_io.set_operation_mode(7, 0)
 
@@ -360,7 +360,7 @@ class SvenzvaDriver:
                 exit()
 
 
-        teaching_mode = True
+        teaching_mode = False
         vel_mode =  False
         if teaching_mode:
             self.teaching_mode()

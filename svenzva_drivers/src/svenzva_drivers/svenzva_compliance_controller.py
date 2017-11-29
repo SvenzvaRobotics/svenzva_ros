@@ -37,6 +37,8 @@ from threading import Thread
 import rospy
 import actionlib
 import math
+import pandas as pd
+import numpy
 
 from std_msgs.msg import Float64, Int32, Float64MultiArray
 from svenzva_msgs.msg import MotorState, MotorStateList, GripperFeedback, GripperResult, GripperAction
@@ -58,8 +60,9 @@ class SvenzvaComplianceController():
         self.last_motor_state = MotorStateList()
         rospy.Subscriber("revel/motor_states", MotorStateList, self.motor_state_cb, queue_size=1)
         rospy.Subscriber("revel/model_efforts", JointState, self.model_effort_cb)
+        
         rospy.Subscriber("revel/motor_controller/pos_torque", Float64MultiArray, self.pos_cmd_cb)
-        self.gr = [4,6,6,4,4,1,1]
+        self.gr = [4,6,6,1,4,1,1]
         self.model_torque = [0, 0, 0, 0, 0, 0, 0]
         self.last_model_torque = [0, 0, 0, 0, 0, 0, 0]
         self.teaching_mode = teaching_mode
@@ -67,11 +70,26 @@ class SvenzvaComplianceController():
         self.pos_cmd = Float64MultiArray()
         self.pos_active = False
         self.pre_error = 0
+	self.torque_window = list()
 
     def motor_state_cb(self, data):
         self.last_motor_state = self.motor_state
         self.motor_state = data
 
+	torque_ar = [0 for x in range(7)]
+	for i,state in enumerate(data.motor_states):
+		torque_ar[i] = state.load
+	if len(self.torque_window) >= 6:
+		self.torque_window.pop(0)
+	self.torque_window.append(torque_ar)
+
+    #returns the current sliding window for the motor index specified
+    # where index = motor_id - 1
+    def extract_motor_window(self, index):
+        window = list()
+	for windows in self.torque_window:
+		window.append(windows[index])
+        return window
 
     def model_effort_cb(self, msg):
         if not msg:
@@ -83,6 +101,26 @@ class SvenzvaComplianceController():
         self.pos_cmd = msg.data
         self.pos_active = True
 
+    """
+    Triangular smoothing function for noisy torque reading
+    """
+    def smoothListTriangle(self, list_val,strippedXs=False,degree=3):
+     weight=[]
+     window=degree*2-1
+     smoothed=[0.0]*(len(list_val)-window)
+     for x in range(1,2*degree):
+         weight.append(degree-abs(degree-x))
+     	 w=numpy.array(weight)
+     for i in range(len(smoothed)):
+         smoothed[i]=sum(numpy.array(list_val[i:i+window])*w)/float(sum(w))
+     return smoothed
+
+    def pd_smooth(self, ts):
+        data = {'score': ts}
+        df = pd.DataFrame(data)
+        return df.rolling(window=5).mean()
+        #smooth_data = pd.rolling_mean(ts,5)
+	#return smooth_data
 
     #current / torque based complaince
     #threshold theoretically helps smoothness
@@ -93,6 +131,7 @@ class SvenzvaComplianceController():
         delta_neg = 10
         model_torque = self.model_torque[motor_id-1] + offset
         #convert from Nm to raw current value
+
         if abs(self.model_torque[motor_id-1] - self.last_model_torque[motor_id-1]) > 1:
             return None
         model_torque = self.get_raw_current(model_torque )
@@ -106,15 +145,7 @@ class SvenzvaComplianceController():
             if -10 <= model_torque <= 0:
                 model_torque = -50
         """
-        #filter out random sign changes in current
-        #if motor_id is not 1:
-        if self.motor_state.motor_states[motor_id - 1].load > 0 and self.last_motor_state.motor_states[motor_id - 1].load < 0:
-            self.last_motor_state = self.motor_state
-        elif self.motor_state.motor_states[motor_id - 1].load < 0 and self.last_motor_state.motor_states[motor_id - 1].load > 0:
-            self.last_motor_state = self.motor_state
-            return
-
-        # temporary for testing RNE
+        """
 
         if abs(self.motor_state.motor_states[motor_id - 1].load - model_torque) > threshold:
             mag = int(math.copysign(1, model_torque - self.motor_state.motor_states[motor_id-1].load ))
@@ -125,7 +156,16 @@ class SvenzvaComplianceController():
                 goal += delta_neg #* self.gr[motor_id - 1]
 
             return (motor_id, goal)
+        """
+        if abs(self.smoothed_torque[motor_id - 1] - model_torque) > threshold:
+            mag = int(math.copysign(1, model_torque - self.motor_state.motor_states[motor_id-1].load ))
+            goal = model_torque
+            #if mag > 0:
+            #    goal += model_boost #* self.gr[motor_id - 1]
+            #else:
+            #    goal -= model_boost #* self.gr[motor_id - 1]
 
+            return (motor_id, goal)
         return
 
     #tau is torque in Nm
@@ -170,10 +210,12 @@ class SvenzvaComplianceController():
         #if len(vals) > 0:
         #    self.mx_io.set_multi_current(tuple(vals))
 
-        rospy.sleep(0.1)
+        rospy.sleep(0.05)
+
 
 
         #update the motors that felt forces
+        """
         vals = []
         pos = []
         for i, state in enumerate(self.model_torque):
@@ -192,41 +234,27 @@ class SvenzvaComplianceController():
         self.max_current = False
 
         rospy.sleep(0.05)
+        """
         return
-    """
-    def pos_controller(self, motor_id):
-        error = 0
-        torque = 0
-        p_gain = 0.004
-        d_gain = 0.0005
-
-        if not self.pos_active:
-            return 0
-
-        error =  self.motor_state.motor_states[motor_id-1].position - self.pos_cmd
-
-        if abs(error) < 0.01:
-            self.pos_active = False
-
-        torque = p_gain * error + d_gain * ((error - self.pre_error / 0.004))
-        self.pre_error = error
-        #print "sending: " + str(torque)
-        return self.get_raw_current(torque)
-    """
 
     def rad_to_raw(self, angle):
         return int(round( angle * 4096.0 / 6.2831853 ))
 
-    def update_state(self):
-        pos = []
-
-        for i in range(1,7):
-            pos.append( (i, self.rad_to_raw(self.motor_state.motor_states[i-1].position * self.gr[i-1])))
-        self.mx_io.set_multi_position(tuple(pos))
-        rospy.sleep(0.1)
+    def update_torque(self):
+        for i in range(0, 6):
+            self.smoothed_torque[i] = self.smoothListTriangle(self.extract_motor_window(i))[0]
 
     def start(self):
-        rospy.sleep(1.0)
-        self.feel_and_react()
+        rospy.sleep(2.0)
+	while len(self.torque_window) < 6:
+		rospy.sleep(0.1)
         while not rospy.is_shutdown():
+            self.update_torque()
             self.feel_and_react()
+            rospy.sleep(0.02)
+	    #print self.smoothed_torque
+            #smoothed_val = self.extract_motor_window(1)
+            #self.test_pub.publish(self.smoothListTriangle(smoothed_val)[0])
+            #print self.pd_smooth(smoothed_val)['score']
+            #self.test_pub.publish(self.pd_smooth(smoothed_val))
+
