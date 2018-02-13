@@ -1,0 +1,28 @@
+<launch>
+
+  <!-- If true, loads trajectory controllers. Otherwise, loads individual position controllers -->
+  <arg name="run_trajectory" default="true"/>
+ 
+  <param name="robot_description" command="cat $(find svenzva_description)/robots/svenzva_arm.urdf" />
+
+  <!-- Publish robot's state in the tf tree-->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_state_pub">
+    <remap from="/joint_states" to="/revel/joint_states" />
+  </node>
+
+  <!-- Parameters for the hardware interface and controllers -->
+  <rosparam file="$(find svenzva_drivers)/config/controller_params.yaml"/>
+
+  <!-- Start position controllers -->
+  <group unless="$(arg run_trajectory)">
+      <node name="controller" pkg="controller_manager" type="spawner"    respawn="false" ns="/revel" output="screen" args="/svenzva_controllers/joint_1 /svenzva_controllers/joint_2 /svenzva_controllers/joint_3 /svenzva_controllers/joint_4 /svenzva_controllers/joint_5 /svenzva_controllers/joint_6  /svenzva_controllers/joint_state_controller " />
+  </group>
+  
+  <!-- Start trajectory controllers (needed for MoveIt!)-->
+  <group if="$(arg run_trajectory)">
+      <node name="revel_trajectory_controller" pkg="controller_manager" type="spawner" 
+          output="screen" ns="revel"
+          args="effort_joint_trajectory_controller
+          joint_state_controller"/>
+  </group>
+</launch>
