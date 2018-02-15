@@ -3,7 +3,11 @@
   <name>svenzva_joy</name>
   <version>0.0.0</version>
   <description>The svenzva_joy package</description>
+  <url type="website">http://wiki.ros.org/svenzva_joy</url>
+  <url type="repository">https://github.com/SvenzvaRobotics/svenzva_ros.git</url>
+  <url type="bugtracker">https://github.com/SvenzvaRobotics/svenzva_ros/issues</url>
 
+  <author email="max@svenzva.com">Max Svetlik</author>
   <maintainer email="max@svenzva.com">Max Svetlik</maintainer>
 
   <license>BSD</license>

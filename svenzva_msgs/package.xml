@@ -4,11 +4,14 @@
   <description>
   Svenzva arm and state related messages.
   </description>
+  <url type="website">http://wiki.ros.org/svenzva_msgs</url>
+  <url type="repository">https://github.com/SvenzvaRobotics/svenzva_ros.git</url>
+  <url type="bugtracker">https://github.com/SvenzvaRobotics/svenzva_ros/issues</url>
+
+  <author email="max@svenzva.com">Max Svetlik</author>
   <maintainer email="max@svenzva.com">Max Svetlik</maintainer>
 
   <license>BSD</license>
-
-  <author>Max Svetlik</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
