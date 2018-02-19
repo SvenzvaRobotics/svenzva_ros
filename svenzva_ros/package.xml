@@ -14,6 +14,15 @@
   <license>BSD</license>
   <buildtool_depend>catkin</buildtool_depend>
 
+  <run_depend>svenzva_demo</run_depend>
+  <run_depend>svenzva_description</run_depend>
+  <run_depend>svenzva_drivers</run_depend>
+  <run_depend>svenzva_joy</run_depend>
+  <run_depend>svenzva_moveit</run_depend>
+  <run_depend>svenzva_msgs</run_depend>
+  <run_depend>svenzva_simulation</run_depend>
+  <run_depend>svenzva_utils</run_depend>
+
  <export>
     <metapackage />
  </export>
