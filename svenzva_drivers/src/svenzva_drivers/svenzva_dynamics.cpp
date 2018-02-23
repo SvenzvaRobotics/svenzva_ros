@@ -79,12 +79,13 @@ void feel_efforts(ros::Publisher tau_pub){
       KDL::Wrench wr = KDL::Wrench();
       if( !first_run) {
         int gr = 1;
-        if(i == 0)
+        /*if(i == 0)
             gr = 4;
         else if( i == 4)
             gr = 4;
         else if(i == 1 || i == 2)
             gr = 6;
+        */
         double diff = model_states.effort[i] - joint_states.effort[i];
         double frc = 0.0;
 
@@ -116,9 +117,11 @@ void feel_efforts(ros::Publisher tau_pub){
                 jnt_taugc(i) = jnt_taugc(i) - spring_offset; 
             }
             
+            if (i == 0)
+                divisor = 10000;
             if (i == 1 || i == 2)
                 divisor = 6;
-            else if (i == 0 || i == 4)
+            else if (i == 4)
                 divisor = 4;
             model_states.effort[i] = jnt_taugc(i) / divisor;
         }

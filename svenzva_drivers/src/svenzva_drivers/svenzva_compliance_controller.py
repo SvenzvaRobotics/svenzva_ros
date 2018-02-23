@@ -71,6 +71,7 @@ class SvenzvaComplianceController():
         self.pos_active = False
         self.pre_error = 0
 	self.torque_window = list()
+        self.motor_boost = 0
 
     def motor_state_cb(self, data):
         self.last_motor_state = self.motor_state
@@ -122,23 +123,31 @@ class SvenzvaComplianceController():
     #threshold theoretically helps smoothness
     #and offset makes the joint easier to move due to model errors
     def feel_and_react_motor(self, motor_id, threshold=3, offset=0):
-        filter_thresh = 50 # a delta larger than this value results in a discard
-        delta_pos = -10
-        delta_neg = 10
+        #filter_thresh = 50 # a delta larger than this value results in a discard
+        #delta_pos = -10
+        #delta_neg = 10
         model_torque = self.model_torque[motor_id-1] + offset
         #convert from Nm to raw current value
-        model_boost = self.get_raw_current(model_torque / self.gr[motor_id-1] * 0.01)
+        model_boost = self.get_raw_current(0.02) #self.get_raw_current(model_torque / self.gr[motor_id-1] * 0.01)
         model_torque = self.get_raw_current(model_torque / self.gr[motor_id-1])
 
         if abs(self.smoothed_torque[motor_id - 1] - model_torque) > threshold:
 
             mag = int(math.copysign(1, model_torque - self.motor_state.motor_states[motor_id-1].load ))
             goal = model_torque
-            #if mag > 0:
-            #    goal += model_boost #* self.gr[motor_id - 1]
-            #else:
-            #    goal -= model_boost #* self.gr[motor_id - 1]
 
+            if motor_id is 1:
+                if mag > 0:
+                    goal -= model_boost #* self.gr[motor_id - 1]
+                else:
+                    goal += model_boost #* self.gr[motor_id - 1]
+                    self.motor_boost = 0.02
+
+            return (motor_id, goal)
+
+        if motor_id is 1:
+            self.motor_boost /= 2
+            goal = self.get_raw_current(self.motor_boost)
             return (motor_id, goal)
         return
 
@@ -170,11 +179,11 @@ class SvenzvaComplianceController():
                 return
 
         vals = []
-        vals.append(self.feel_and_react_motor(1, 4))
+        vals.append(self.feel_and_react_motor(1, 1))
         vals.append(self.feel_and_react_motor(2, 4))
         vals.append(self.feel_and_react_motor(3, 4))
-        vals.append(self.feel_and_react_motor(4, 5))
-        vals.append(self.feel_and_react_motor(5, 1))
+        vals.append(self.feel_and_react_motor(4, 2))
+        vals.append(self.feel_and_react_motor(5, 2))
         vals.append(self.feel_and_react_motor(6, 10))
         vals = [x for x in vals if x is not None]
 
