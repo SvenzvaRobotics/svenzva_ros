@@ -39,6 +39,7 @@ import rospy
 import rospkg
 import actionlib
 import yaml
+import yamlordereddictloader
 from std_msgs.msg import Bool, Int32
 from svenzva_msgs.msg import *
 from svenzva_drivers.srv import *
@@ -67,13 +68,13 @@ class KinestheticTeaching:
         self.gripper_client = actionlib.SimpleActionClient('/revel/gripper_action', GripperAction)
         joint_states_sub = rospy.Subscriber('/joint_states', JointState, self.js_cb, queue_size=1)
         self.fkine = actionlib.SimpleActionClient('/svenzva_joint_action', SvenzvaJointAction)
-        rospy.loginfo("Waiting for fkine trajectory server...")
+        #rospy.loginfo("Waiting for fkine trajectory server...")
         self.fkine.wait_for_server()
-        rospy.loginfo("Found Trajectory action server")
+        #rospy.loginfo("Found Trajectory action server")
 
-        rospy.loginfo("Waiting for gripper action server")
+        #rospy.loginfo("Waiting for gripper action server")
         self.gripper_client.wait_for_server()
-        rospy.loginfo("Found Revel gripper action server")
+        #rospy.loginfo("Found Revel gripper action server")
 
         self.gripper_goal = GripperGoal()
 
@@ -177,10 +178,10 @@ class KinestheticTeaching:
     def js_playback(self, filename, state_name):
         try:
             f = open(self.path+"/config/" + filename + ".yaml")
-            qmap = yaml.safe_load(f)
+            qmap = yaml.load(f,Loader=yamlordereddictloader.Loader)
             f.close()
         except:
-            rospy.logerr("Could not find specified state file. Does it exist?")
+            #rospy.logerr("Could not find specified state file. Does it exist?")
             return
 
         req = SvenzvaJointGoal()
@@ -190,11 +191,11 @@ class KinestheticTeaching:
             self.close_gripper()
         else:
             if len(qmap[state_name]) < 6:
-                rospy.logerr("Could not find specified state. Configuration file ill-formed or missing. Aborting.")
+                #rospy.logerr("Could not find specified state. Configuration file ill-formed or missing. Aborting.")
                 return
             req.positions = qmap[state_name]
 
-            rospy.loginfo("Sending state command...")
+            #rospy.loginfo("Sending state command...")
             self.fkine.send_goal_and_wait(req)
 
     """
@@ -211,11 +212,11 @@ class KinestheticTeaching:
             self.close_gripper()
         else:
             if len(qmap[state_name]) < 6:
-                rospy.logerr("Could not find specified state. Configuration file ill-formed or missing. Aborting.")
+                #rospy.logerr("Could not find specified state. Configuration file ill-formed or missing. Aborting.")
                 return
             req.positions = qmap[state_name]
 
-            rospy.loginfo("Sending state command...")
+            #rospy.loginfo("Sending state command...")
             self.fkine.send_goal_and_wait(req)
 
 
@@ -233,10 +234,10 @@ class KinestheticTeaching:
         filename = filename_list[file_index]
         try:
             f = open(self.path+"/config/" + filename)
-            qmap = yaml.safe_load(f)
+            qmap = yaml.load(f, Loader=yamlordereddictloader.Loader)
             f.close()
         except:
-            rospy.logerr("Could not find specified state file. Does it exist?")
+            #rospy.logerr("Could not find specified state file. Does it exist?")
             raw_input("Could not find specified state file.")
             return
 
@@ -256,13 +257,12 @@ class KinestheticTeaching:
             stalled = True
             for i in range(0,6):
                 if abs(self.joint_states.position[i] - q_ar[i]) > self.delta:
-                    stalled = False
-                    break
+                    stalled &= False
             if stalled:
-                rospy.loginfo("Arm reached target position.")
+                #rospy.loginfo("Arm reached target position.")
                 return
-            rospy.sleep(10)
-        rospy.loginfo("Arm stalled: did not reach target position after 10 seconds.")
+            rospy.sleep(0.1)
+        #rospy.loginfo("Arm stalled: did not reach target position after 10 seconds.")
         return
 
 

@@ -53,7 +53,7 @@ from svenzva_drivers.svenzva_compliance_controller import *
 from std_msgs.msg import Bool
 from trajectory_msgs.msg import JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal
-from svenzva_msgs.msg import MotorState, MotorStateList, SvenzvaJointAction
+from svenzva_msgs.msg import MotorState, MotorStateList, SvenzvaJointAction, SvenzvaJointResult
 
 
 
@@ -265,8 +265,7 @@ class SvenzvaDriver:
 
     def start_modules(self):
 
-        #compliance_demonstration is an experimental dynamic compliance module
-        compliance_demonstration = rospy.get_param('~dynamic_compliance', False)
+        open_close_gripper = rospy.get_param('~cycle_gripper_on_start', False)
 
         jtac = JointTrajectoryActionController(self.port_namespace, self.dxl_io, self.current_state)
         rospy.sleep(1.0)
