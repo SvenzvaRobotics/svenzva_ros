@@ -28,6 +28,10 @@ Finally, use rosdep to resolve dependencies specified in package descriptors:
 rosdep install --from-paths ./ --ignore-src --rosdistro=$ROS_DISTRO -y
 ```
 
+Next, install any python dependencies:
+```
+pip install yamlordereddictloader
+```
 
 ## Deployment
 
