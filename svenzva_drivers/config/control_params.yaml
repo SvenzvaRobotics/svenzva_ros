@@ -12,31 +12,31 @@
     p: 800
     i: 0
     d: 6000
-    acceleration: 10
-    velocity: 100
+    acceleration: 20
+    velocity: 200
     gr: 4
     mode: 5
 2:
     p: 800
     i: 0
     d: 6000
-    acceleration: 10
-    velocity: 200
+    acceleration: 40
+    velocity: 400
     gr: 6
     mode: 5
 3:
     p: 800
     i: 0
     d: 6000
-    acceleration: 10
-    velocity: 200
+    acceleration: 40
+    velocity: 400
     gr: 6
     mode: 5
 4:
     p: 800
     i: 0
     d: 6000
-    acceleration: 10
+    acceleration: 20
     velocity: 100
     gr: 1
     mode: 5
@@ -55,7 +55,7 @@
     acceleration: 10
     velocity: 100
     gr: 1
-    mode: 5
+    mode: 3
 7:
     p: 500
     i: 0
