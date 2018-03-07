@@ -37,7 +37,6 @@ import rospkg
 import yaml
 from svenzva_utils.kinesthetic_teaching_console import *
 from svenzva_msgs.msg import *
-from svenzva_drivers.srv import *
 
 
 """
@@ -57,7 +56,7 @@ def playback_interaction():
         rospy.logerr("Error opening kinesthetic interaction file")
 
 
-    iterations = 5
+    iterations = 1
     for i in range(0,iterations):
         if rospy.is_shutdown():
             return
