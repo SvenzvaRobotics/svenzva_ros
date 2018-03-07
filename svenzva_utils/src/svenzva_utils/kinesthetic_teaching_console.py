@@ -100,7 +100,7 @@ class KinestheticTeaching:
 
     def close_gripper(self):
         self.gripper_goal.target_action = self.gripper_goal.CLOSE
-        self.gripper_goal.target_current = 50
+        self.gripper_goal.target_current = 200
         self.gripper_client.send_goal(self.gripper_goal)
         rospy.sleep(0.5)
         return
@@ -138,10 +138,14 @@ class KinestheticTeaching:
             raw_input("You must set the interaction before saving poses. Press Enter to continue.")
             return
 
+        #append_write = "a+"
+        #if not os.path.exists(self.path+"/config/"+self.interaction_name+".yaml"):
+        #    append_write = "w+"
         try:
             f = open(self.path+"/config/" + self.interaction_name + ".yaml", "a+")
+            #f = open(self.path+"/config/" + self.interaction_name + ".yaml", append_write)
 
-            num_lines = sum(1 for line in f)
+            num_lines = 0 #sum(1 for line in f)
             ar = []
             if open_gripper:
                 ar.append("open_gripper")
@@ -149,7 +153,7 @@ class KinestheticTeaching:
             else:
                 ar.append("close_gripper")
                 self.close_gripper()
-            f.write("gripper" + num_lines + ": " +str(ar) + "\n")
+            f.write("gripper: " +str(ar) + "\n")
             f.close()
         except:
             raw_input("Unable to open file. Path: " + self.path+"/config/"+self.interaction_name+".yaml")
@@ -187,17 +191,19 @@ class KinestheticTeaching:
         req = SvenzvaJointGoal()
         if qmap[state_name][0] == "open_gripper":
             self.open_gripper()
+            return False
         elif qmap[state_name][0] == "close_gripper":
             self.close_gripper()
+            return True
         else:
             if len(qmap[state_name]) < 6:
                 #rospy.logerr("Could not find specified state. Configuration file ill-formed or missing. Aborting.")
-                return
+                return False
             req.positions = qmap[state_name]
 
             #rospy.loginfo("Sending state command...")
             self.fkine.send_goal_and_wait(req)
-
+            return True
     """
     Plays back a specific state name. Helper fuction
     """
@@ -208,17 +214,19 @@ class KinestheticTeaching:
         #action_name is at 0th index. additional indicies reserved for gripper action specifications- e.g. torque
         if qmap[state_name][0] == "open_gripper":
             self.open_gripper()
+            return False
         elif qmap[state_name][0] == "close_gripper":
             self.close_gripper()
+            return False
         else:
             if len(qmap[state_name]) < 6:
                 #rospy.logerr("Could not find specified state. Configuration file ill-formed or missing. Aborting.")
-                return
+                return False
             req.positions = qmap[state_name]
 
             #rospy.loginfo("Sending state command...")
             self.fkine.send_goal_and_wait(req)
-
+            return True
 
     """
     Plays back an entire interaction- all poses specified in an interaction file
@@ -242,8 +250,8 @@ class KinestheticTeaching:
             return
 
         for state in qmap:
-            self.js_playback(qmap, state)
-            self.wait_for_stall(qmap[state])
+            if self.js_playback(qmap, state):
+                self.wait_for_stall(qmap[state])
 
     # This method spins until a stall condition is detected.
     # A stall condition happens when the joint states published from one time step to another have a
