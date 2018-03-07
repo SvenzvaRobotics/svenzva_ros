@@ -1,12 +1,14 @@
 <launch>
     <arg name="mode" default="user_defined"/>
     <arg name="data_frequency" default="50"/>
-
+    
     <arg name="namespace" value="revel"/>
     <arg name="param_file" default="control_params.yaml"/>
     
     <!-- Determines if the gripper will open and close on successful startup -->
     <arg name="cycle_gripper_on_start" default="False"/>
+
+    <rosparam param="arm_speed_limit">40</rosparam>
 
     <!-- Set the joint names to be aggregated by the joint state publisher -->
     <rosparam param="joint_names">[joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, finger_joint_1, finger_joint_2 ]</rosparam>
