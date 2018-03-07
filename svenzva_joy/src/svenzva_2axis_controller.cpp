@@ -119,12 +119,12 @@ int main(int argc, char** argv)
 
   while(ros::ok()){
     ros::spinOnce();
-    if(svenzva_joy.last_cmd.buttons[svenzva_joy.gripper_button] == 0){
+    if(svenzva_joy.last_cmd.buttons[svenzva_joy.gripper_button] == 1){
      
       svenzva_msgs::GripperGoal goal;
       if(gripper_open){
           goal.target_action = goal.CLOSE;
-          goal.target_current = 300;
+          goal.target_current = 250;
           gripper_open = false;
       }
       else{
