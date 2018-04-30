@@ -53,7 +53,7 @@ from svenzva_drivers.svenzva_compliance_controller import *
 from std_msgs.msg import Bool
 from trajectory_msgs.msg import JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal
-from svenzva_msgs.msg import MotorState, MotorStateList, SvenzvaJointAction
+from svenzva_msgs.msg import MotorState, MotorStateList, SvenzvaJointAction, SvenzvaJointResult
 
 
 
@@ -145,7 +145,7 @@ class SvenzvaDriver:
         debug_polling_rate = False
         rates = deque([float(self.update_rate)]*num_events, maxlen=num_events)
         last_time = rospy.Time.now()
-        gr = [4,6,6,1,4,1,1]
+        gr = [4,7,7,3,4,1,1]
         rate = rospy.Rate(self.update_rate)
         id_list = range(self.min_motor_id, self.max_motor_id+1)
         rad_per_tick = 6.2831853 / 4096.0
@@ -265,8 +265,7 @@ class SvenzvaDriver:
 
     def start_modules(self):
 
-        #compliance_demonstration is an experimental dynamic compliance module
-        compliance_demonstration = rospy.get_param('~dynamic_compliance', False)
+        open_close_gripper = rospy.get_param('~cycle_gripper_on_start', False)
 
         jtac = JointTrajectoryActionController(self.port_namespace, self.dxl_io, self.current_state)
         rospy.sleep(1.0)
@@ -284,10 +283,13 @@ class SvenzvaDriver:
         gripper_server = RevelGripperActionServer(self.port_namespace, self.dxl_io)
         gripper_server.start()
 
-        cart_server = RevelCartesianController(self.port_namespace, self.dxl_io)
 
-        rospy.loginfo("Started Cartesian controller")
+        mode = rospy.get_param('~mode', "user_defined")
+        if mode == 'velocity':
+            cart_server = RevelCartesianController(self.port_namespace, self.dxl_io)
+            rospy.loginfo("Started Cartesian controller")
 
+        compliance_demonstration = False
         if compliance_demonstration:
             rospy.loginfo("Starting with experimental dynamic compliance.")
             self.compliance_controller = SvenzvaComplianceController(self.port_namespace, self.dxl_io,False)

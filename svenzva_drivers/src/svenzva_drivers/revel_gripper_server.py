@@ -60,8 +60,9 @@ class RevelGripperActionServer():
         self.mx_io = mx_io
         self.motor_id = 7
         self.closing_force = 150 #mA
-        self.opening_force = -150 #mA
+        self.opening_force = -200 #mA
         self.moving_distance = 2.0 #rad
+        self.open_position = -2.1
 
         self.motor_state = MotorState()
         rospy.Subscriber("revel/motor_states", MotorStateList, self.motor_state_cb, queue_size=1)
@@ -109,40 +110,41 @@ class RevelGripperActionServer():
     def motor_state_cb(self, data):
         self.motor_state = data.motor_states[self.motor_id - 1]
 
-    def start(self):
+    def start(self, open_and_close=False):
         #wait for motor_state
         rospy.sleep(0.2)
-
-        #close gripper completely
-        self.mx_io.set_torque_goal(self.motor_id, self.closing_force)
-
-        #wait for fingers to close
-        rospy.sleep(3.0)
-
-        #open gripper the initial_distance
         self.initial_pos = self.motor_state.position
-        self.mx_io.set_torque_goal(self.motor_id, self.opening_force)
+        if open_and_close:
 
-        start = rospy.Time.now()
-        while( abs(self.initial_pos - self.motor_state.position) < self.moving_distance):
-            rospy.sleep(0.05)
-            if rospy.Time.now() - start > rospy.Duration(0.25):
-                pass
+            #close gripper completely
+            self.mx_io.set_torque_goal(self.motor_id, self.closing_force)
 
-        #stop movement
-        self.mx_io.set_torque_goal(self.motor_id, 0)
+            #wait for fingers to close
+            rospy.sleep(3.0)
+
+            #open gripper the initial_distance
+            self.mx_io.set_torque_goal(self.motor_id, self.opening_force)
+
+            start = rospy.Time.now()
+            while( self.motor_state.position > self.open_position):
+                rospy.sleep(0.05)
+                if rospy.Time.now() - start > rospy.Duration(0.25):
+                    pass
+
+            #stop movement
+            self.mx_io.set_torque_goal(self.motor_id, 0)
 
 
     def open_gripper(self, force):
         cur_pos = 0 #self.motor_state.position
         self.mx_io.set_torque_goal(self.motor_id, force)
 
-        while( abs(self.initial_pos - cur_pos - self.motor_state.position) < self.moving_distance):
+        while( self.motor_state.position > self.open_position):
             if self._as.is_preempt_requested():
                 rospy.loginfo('Gripper action preempted.')
                 self._as.set_preempted()
                 break
-            rospy.sleep(0.05)
+            rospy.sleep(0.02)
 
         #stop movement
         self.mx_io.set_torque_goal(self.motor_id, 0)

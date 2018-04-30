@@ -95,7 +95,7 @@ void SvenzvaArmJoystick::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   geometry_msgs::Twist twist;
 
-  twist.linear.x = l_scale_*joy->axes[linear_x];
+  twist.linear.x = -1 * l_scale_*joy->axes[linear_x];
   twist.linear.y = l_scale_*joy->axes[linear_y];
   twist.linear.z = l_scale_*joy->axes[linear_z];
   twist.angular.x = a_scale_*joy->axes[angular_x];
@@ -119,12 +119,12 @@ int main(int argc, char** argv)
 
   while(ros::ok()){
     ros::spinOnce();
-    if(svenzva_joy.last_cmd.buttons[svenzva_joy.gripper_button] == 0){
+    if(svenzva_joy.last_cmd.buttons[svenzva_joy.gripper_button] == 1){
      
       svenzva_msgs::GripperGoal goal;
       if(gripper_open){
           goal.target_action = goal.CLOSE;
-          goal.target_current = 300;
+          goal.target_current = 200;
           gripper_open = false;
       }
       else{
@@ -132,8 +132,9 @@ int main(int argc, char** argv)
           gripper_open = true;
       }
       gripper_action.sendGoalAndWait(goal);
+      ros::Duration(0.25).sleep();
     }
-    ros::Rate(10).sleep();
+    ros::Rate(15).sleep();
   }
 
 

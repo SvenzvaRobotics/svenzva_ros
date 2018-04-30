@@ -41,13 +41,22 @@ Copyright Svenzva Robotics
 """
 import rospy
 import rospkg
-import PyKDL
 import math
+import sys
+import numpy
 
 from pykdl_utils.kdl_parser import kdl_tree_from_urdf_model
 from urdf_parser_py.urdf import Robot
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
+from moveit_msgs.srv import GetStateValidity
+from svenzva_drivers.svenzva_kinematics import *
+
+import moveit_commander
+import moveit_msgs.msg
+import geometry_msgs.msg
+import tf
+
 
 class RevelCartesianController:
 
@@ -63,26 +72,38 @@ class RevelCartesianController:
         f.close()
 
         self.mx_io = mx_io
-        self.tree = kdl_tree_from_urdf_model(self.robot)
-        self.chain = self.tree.getChain('base_link', 'link_6')
         self.mNumJnts = 6
-        self.jnt_q = PyKDL.JntArray(self.mNumJnts);
-        self.jnt_qd = PyKDL.JntArray(self.mNumJnts);
-        self.jnt_qdd = PyKDL.JntArray(self.mNumJnts);
-        self.gear_ratios = [4,6,6,1,4,1]
+        self.gear_ratios = [4,7,7,3,4,1]
         self.js = JointState()
         self.min_limit = 20.0
         self.max_limit = 100.0
         self.last_twist = Twist()
         self.last_cmd = []
-        self.last_qdot = PyKDL.JntArray(self.mNumJnts)
-        self.vel_solver = PyKDL.ChainIkSolverVel_pinv(self.chain, 0.001, 1000);
-        #self.vel_solver = PyKDL.ChainIkSolverVel_wdls(self.chain, 0.001, 1000000)
+        self.last_cmd_zero = False
+
+        #Load Svenzva kinematic solver
+        self.jacobian_solver = SvenzvaKinematics()
+        self.ee_velocity = numpy.zeros(6)
+
         self.cart_vel = Twist()
         self.arm_speed_limit = rospy.get_param('arm_speed_limit', 20.0)
+        self.collision_check_enabled = rospy.get_param('collision_check_enabled', False)
 
+        if self.collision_check_enabled:
+            rospy.loginfo("MoveIt collision check ENABLED. Using environment information.")
+            try:
+                rospy.wait_for_service('/check_state_validity')
+                self.state_validity_srv = rospy.ServiceProxy('/check_state_validity', GetStateValidity)
+            except rospy.ServiceException as exc:
+                rospy.loginfo("MoveIt not. Cartesian Velocity controller will not use collision checking.")
+                rospy.logerr("Cartesian collision checking DISABLED")
+                self.collision_check_enabled = False
+        else:
+            rospy.loginfo("MoveIt collision check DISabled. Not using environment information.")
+        self.group = None
 
         self.loop()
+
 
     def js_cb(self, msg):
         self.js = msg;
@@ -96,36 +117,84 @@ class RevelCartesianController:
     def cart_vel_cb(self, msg):
         self.cart_vel = msg
 
+    """
+    Uses MoveIt to check if movement would cause collision with scene or self
+    Returns true if movement causes collision
+            false if movement does not cause collision
+    """
+    def check_if_collision(self, qdot_out, scale_factor, dt):
+        rs = moveit_msgs.msg.RobotState()
+
+        for i in range(0, self.mNumJnts):
+            rs.joint_state.name.append(self.js.name[i])
+            rs.joint_state.position.append(self.js.position[i] + (qdot_out[i]/scale_factor*dt))
+
+        result = self.state_validity_srv(rs, "svenzva_arm", moveit_msgs.msg.Constraints() )
+        if not result.valid:
+            return True
+        return False
+
+    def send_zero_vel(self):
+        tup_list = []
+        for i in range(0, self.mNumJnts):
+            tup_list.append( (i+1, 0))
+        self.mx_io.set_multi_speed(tuple(tup_list))
+
+    def send_last_vel(self):
+        self.mx_io.set_multi_speed(tuple(self.last_cmd))
+
     def loop(self):
         rospy.sleep(1.0)
+        count = 0
         while not rospy.is_shutdown():
             msg = self.cart_vel
 
-            #if msg == Twist():
-            #    rospy.sleep(0.25)
-            #    continue
+            #continues loop while no velocity messages are incoming
+            if self.cart_vel == Twist():
+                if self.last_cmd_zero:
+                    rospy.sleep(0.1)
+                    continue
+                self.send_zero_vel()
+                self.last_cmd_zero = True
+                rospy.sleep(0.1)
+                continue
 
+            joint_positions = numpy.empty(0)
             for i in range(0, self.mNumJnts):
-                self.jnt_q[i] = self.js.position[i];
-                self.jnt_qd[i] = 0.0;
-                self.jnt_qdd[i] = 0.0;
+                joint_positions = numpy.append(joint_positions, self.js.position[i])
 
-            trans = PyKDL.Vector(msg.linear.x, msg.linear.y, msg.linear.z)
-            rot = PyKDL.Vector(msg.angular.x, msg.angular.y, msg.angular.z)
-            qdot_out = PyKDL.JntArray(self.mNumJnts)
-            vel = PyKDL.Twist(trans, rot)
-            err = self.vel_solver.CartToJnt(self.jnt_q, vel, qdot_out)
-            if err == 1: #PyKDL.E_CONVERGE_PINV_SINGULAR:
-                rospy.loginfo("Cartesian movement solver converged but gave degraded solution. Skipping.")
-                return
-            elif err == -8: #PyKDL.E_SVD_FAILED:
-                rospy.loginfo("Cartesian movement solver did not converge. Skipping.")
-                return
-            elif err == 100:
-                rospy.loginfo("Cartesian movement converged but psuedoinverse in singular.")
-            elif err != 0:
-                rospy.loginfo("Unspecified error: %d", err)
-                return
+            self.ee_velocity[0] = msg.linear.x
+            self.ee_velocity[1] = msg.linear.y
+            self.ee_velocity[2] = msg.linear.z
+            self.ee_velocity[3] = msg.angular.x
+            self.ee_velocity[4] = msg.angular.y
+            self.ee_velocity[5] = 0 #msg.angular.z
+
+            qdot_out = self.jacobian_solver.get_joint_vel(joint_positions, self.ee_velocity)
+
+
+            #Singularity handling
+            #wrist_det = self.jacobian_solver.get_jacobian_wrist_det()
+            shoulder_det = self.jacobian_solver.get_jacobian_det()
+            rospy.loginfo(shoulder_det)
+            heuristic = 0
+
+            # This heuristic reduces amplitude of oscillation around singularities
+            # This makes joystick execution smoother, but might cause issues for arbitrary EE velocity in other cases
+            if heuristic == 1:
+                if abs(shoulder_det) < 0.0001 and len(self.last_cmd) > 0 and numpy.linalg.norm(self.last_cmd) != 0:
+                    self.send_last_vel()
+                    rospy.sleep(0.5)
+                    continue
+
+
+
+            if abs(msg.angular.z) > 0:
+                qdot_out[5] = msg.angular.z
+
+            if not isinstance(qdot_out, numpy.ndarray) and qdot_out == SvenzvaKinematics.ERROR_SINGULAR:
+                rospy.loginfo("Jacobian could not be inverted because it is singular.")
+                continue
 
             tup_list = []
             vals = []
@@ -135,32 +204,47 @@ class RevelCartesianController:
             #check if overall arm velocity violates the ARM_SPEED_LIMIT
             #Note that the ARM_SPEED_LIMIT caps the arm output, where other speed parameters,
             #such as linear_scale and angular_scale in JOY nodes, caps the Twist input to this node.
-
             acc = 0.0
             for i in range(0, self.mNumJnts):
                 acc += math.pow(qdot_out[i], 2)
+
 
             vel_scale = math.sqrt(acc) / self.arm_speed_limit
             if vel_scale > 1.0:
                 scale_factor = vel_scale
 
             if scale_factor != 1:
-                rospy.loginfo("Scaling all velocity by %f", 1/scale_factor)
+                rospy.logdebug("Scaling cartesian velocity: scaling all velocity by %f", 1/scale_factor)
 
-            for i in range(0, self.mNumJnts-1):
+            #check if movement causes collision, if enabled
+
+            if self.collision_check_enabled and not self.cart_vel == Twist():
+                in_collision = self.check_if_collision(qdot_out, scale_factor, 0.0075)
+                if in_collision:
+                    rospy.loginfo("Movement would cause collision with environment.")
+                    for i in range(0, self.mNumJnts):
+                        tup_list.append( (i+1, 0))
+                    self.last_cmd = tup_list
+                    self.last_qdot = qdot_out
+                    self.mx_io.set_multi_speed(tuple(tup_list))
+                    rospy.sleep(0.05)
+                    continue
+
+            for i in range(0, self.mNumJnts):
                 #check if movement violates urdf joint limits
                 if self.robot.joints[i+1].limit.lower >= self.js.position[i] + (qdot_out[i]/scale_factor*0.01) or self.js.position[i] + (qdot_out[i]/scale_factor*0.01) >= self.robot.joints[i+1].limit.upper:
                     rospy.logwarn("Cartesian movement would cause movement outside of joint limits. Skipping...")
-                    rospy.logwarn("Movement would violate joint limit: Joint %d moving to %f with limits [%f,%f]", i, (qdot_out[i]/scale_factor) + self.js.position[i], self.robot.joints[i+1].limit.lower, self.robot.joints[i+1].limit.upper)
+                    rospy.logwarn("Movement would violate joint limit: Joint %d moving to %f with limits [%f,%f]", i+1, (qdot_out[i]/scale_factor) + self.js.position[i], self.robot.joints[i+1].limit.lower, self.robot.joints[i+1].limit.upper)
                     tup_list.append( (i+1, 0))
                 else:
                     tup_list.append( (i+1, int(round(self.radpm_to_rpm(qdot_out[i] * self.gear_ratios[i] / scale_factor) / 0.229 ))))
+
 
             if len(tup_list) > 0:
                 self.last_cmd = tup_list
                 self.last_qdot = qdot_out
                 self.mx_io.set_multi_speed(tuple(tup_list))
-
-            rospy.Rate(4).sleep()
+                self.last_cmd_zero = False
+            rospy.sleep(0.05)
 
 
