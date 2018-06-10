@@ -175,12 +175,12 @@ class RevelCartesianController:
 
             #Singularity handling
             #wrist_det = self.jacobian_solver.get_jacobian_wrist_det()
-            shoulder_det = self.jacobian_solver.get_jacobian_det()
             heuristic = 0
 
             # This heuristic reduces amplitude of oscillation around singularities
             # This makes joystick execution smoother, but might cause issues for arbitrary EE velocity in other cases
             if heuristic == 1:
+            	shoulder_det = self.jacobian_solver.get_jacobian_det()
                 if abs(shoulder_det) < 0.0001 and len(self.last_cmd) > 0 and numpy.linalg.norm(self.last_cmd) != 0:
                     self.send_last_vel()
                     rospy.sleep(0.5)

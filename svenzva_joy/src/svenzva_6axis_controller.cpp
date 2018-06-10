@@ -116,7 +116,9 @@ int main(int argc, char** argv)
   gripperClient gripper_action("/revel/gripper_action", true);
   gripper_action.waitForServer();
   bool gripper_open = true; 
-
+  bool gripper_timer_enabled = false;
+  ros::Time gripper_timer = ros::Time::now();
+  ros::Duration gripper_limit(60.0);
   while(svenzva_joy.valid == false){
     ros::Duration(1.0).sleep();
     ros::spinOnce();
@@ -124,23 +126,34 @@ int main(int argc, char** argv)
 
   while(ros::ok()){
     ros::spinOnce();
-    if(svenzva_joy.last_cmd.buttons[svenzva_joy.gripper_button] == 1){
-     
-      svenzva_msgs::GripperGoal goal;
-      if(gripper_open){
-          goal.target_action = goal.CLOSE;
-          goal.target_current = 200;
-          gripper_open = false;
-      }
-      else{
-          goal.target_action = goal.OPEN;
-          gripper_open = true;
-      }
-      gripper_action.sendGoalAndWait(goal);
-      ros::Duration(0.25).sleep();
+    if(gripper_timer_enabled && ros::Time::now() - gripper_timer > gripper_limit){
+	svenzva_msgs::GripperGoal goal;
+	goal.target_action = goal.CLOSE;
+	goal.target_current = 0;
+	gripper_timer_enabled = false;
+	gripper_action.sendGoalAndWait(goal);
     }
-    ros::Rate(10).sleep();
-  }
+    else{
+	    if(svenzva_joy.last_cmd.buttons[svenzva_joy.gripper_button] == 1){
+	      svenzva_msgs::GripperGoal goal;
+	      if(gripper_open){
+		  goal.target_action = goal.CLOSE;
+		  goal.target_current = 200;
+		  gripper_open = false;
+		  gripper_timer_enabled = true;
+		  gripper_timer = ros::Time::now();
+	      }
+	      else{
+		  goal.target_action = goal.OPEN;
+		  gripper_timer_enabled = false;
+		  gripper_open = true;
+	      }
+	      gripper_action.sendGoalAndWait(goal);
+	      ros::Duration(0.25).sleep();
+	    }
+	    ros::Rate(10).sleep();
+   }  
+ }
 
 
 }
