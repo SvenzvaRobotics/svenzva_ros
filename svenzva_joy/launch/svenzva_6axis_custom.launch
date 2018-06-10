@@ -14,13 +14,13 @@
   <param name="axis_linear_x" value="1" type="int"/>
   <param name="axis_linear_y" value="0" type="int"/>
   <param name="axis_linear_z" value="2" type="int"/>
-  <param name="axis_angular_x" value="4" type="int"/>
-  <param name="axis_angular_y" value="3" type="int"/>
+  <param name="axis_angular_x" value="3" type="int"/>
+  <param name="axis_angular_y" value="4" type="int"/>
   <param name="axis_angular_z" value="5" type="int"/>
   <param name="scale_linear" value="20.0" type="double"/>
   <param name="scale_angular" value="30.0" type="double"/>
 
    
-  <node pkg="svenzva_joy" type="svenzva_2axis_controller" name="svenzva_2axis_manager" output="screen"/>
+  <node pkg="svenzva_joy" type="svenzva_6axis_controller" name="svenzva_6axis_manager" output="screen"/>
 
 </launch>

@@ -31,6 +31,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <ros/ros.h>
+#include <std_msgs/Int32.h>
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
 #include <svenzva_msgs/GripperAction.h>
@@ -38,7 +39,7 @@
 
 /*
  * This handles the joystick / velocity interface for the 
- * Svenzva Robotics custom 3 + 3 axis joystick controller. 
+ * Svenzva Robotics custom 3axis joystick with mode button slecetor controller. 
  *
  */
 
@@ -48,16 +49,21 @@ class SvenzvaArmJoystick
 {
 public:
   SvenzvaArmJoystick();
+  sensor_msgs::Joy  cur_cmd;
   sensor_msgs::Joy  last_cmd;
-  int gripper_button;
+  bool valid;
+  int mode_button;
+  int mode;
+  int linear_x;
 
 private:
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
 
   ros::NodeHandle nh_;
 
-  int linear_x, linear_y, linear_z, angular_x, angular_y, angular_z, rate_;
+  int linear_y, linear_z, angular_x, angular_y, angular_z, rate_;
   double l_scale_, a_scale_;
+  ros::Publisher mode_pub_;
   ros::Publisher vel_pub_;
   ros::Subscriber joy_sub_;
   ros::Rate r;
@@ -70,7 +76,7 @@ SvenzvaArmJoystick::SvenzvaArmJoystick():
   angular_x(4),
   angular_y(4),
   angular_z(4),
-  gripper_button(0),
+  mode_button(0),
   rate_(20),
   r(20)
 { 
@@ -81,59 +87,92 @@ SvenzvaArmJoystick::SvenzvaArmJoystick():
   nh_.param("axis_angular_x", angular_x, angular_x);
   nh_.param("axis_angular_y", angular_y, angular_y);
   nh_.param("axis_angular_z", angular_z, angular_z);
-  nh_.param("gripper_button", gripper_button, gripper_button);
+  nh_.param("mode_button", mode_button, mode_button);
   nh_.param("scale_angular", a_scale_, a_scale_);
   nh_.param("scale_linear", l_scale_, l_scale_);
 
+  valid = false;
   r = ros::Rate(rate_);
+  mode_pub_ = nh_.advertise<std_msgs::Int32>("revel/eef_velocity_mode", 1);
   vel_pub_ = nh_.advertise<geometry_msgs::Twist>("revel/eef_velocity", 1);
   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 1, &SvenzvaArmJoystick::joyCallback, this);
- 
+  mode = 0;
 }
 
 void SvenzvaArmJoystick::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   geometry_msgs::Twist twist;
-
-  twist.linear.x = -1 * l_scale_*joy->axes[linear_x];
-  twist.linear.y = l_scale_*joy->axes[linear_y];
-  twist.linear.z = l_scale_*joy->axes[linear_z];
-  twist.angular.x = a_scale_*joy->axes[angular_x];
-  twist.angular.y = a_scale_*joy->axes[angular_y];
-  twist.angular.z = a_scale_*joy->axes[angular_z];
+  std_msgs::Int32 mode_cmd;
+  mode_cmd.data = mode;
+  if(mode == 0){
+    twist.linear.x = l_scale_*joy->axes[linear_x];
+    twist.linear.y = l_scale_*joy->axes[linear_y];
+    twist.linear.z = l_scale_*joy->axes[linear_z];
+  }
+  if(mode == 1){
+    twist.angular.x = a_scale_*joy->axes[linear_x];
+    twist.angular.y = a_scale_*joy->axes[linear_y];
+    twist.angular.z = a_scale_*joy->axes[linear_z];
+  }
   vel_pub_.publish(twist);
-  last_cmd = *joy;
+  mode_pub_.publish(mode_cmd);
+  last_cmd = cur_cmd;
+  cur_cmd = *joy;
+  valid = true;
 }
 
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "svenzva_2axis_controller");
+  ros::init(argc, argv, "svenzva_3axis_controller");
   SvenzvaArmJoystick svenzva_joy;
   
   gripperClient gripper_action("/revel/gripper_action", true);
   gripper_action.waitForServer();
   bool gripper_open = true; 
 
-  ros::Duration(0.5).sleep();
+  while(!svenzva_joy.valid){
+    ros::Duration(0.5).sleep();
+    ros::spinOnce();
+  }
 
+  int last_mode = 0;
   while(ros::ok()){
     ros::spinOnce();
-    if(svenzva_joy.last_cmd.buttons[svenzva_joy.gripper_button] == 1){
-     
+    if(svenzva_joy.cur_cmd.buttons[svenzva_joy.mode_button] == 0 && last_mode == 1){
+        svenzva_joy.mode += 1;
+        if (svenzva_joy.mode > 2)
+            svenzva_joy.mode = 0;
+    }
+    
+    if(svenzva_joy.mode == 2){
+
       svenzva_msgs::GripperGoal goal;
-      if(gripper_open){
+
+      int user_target_goal = 0;
+      if(svenzva_joy.cur_cmd.axes[svenzva_joy.linear_x] > 0.95)
+          user_target_goal = 1;
+      else if (svenzva_joy.cur_cmd.axes[svenzva_joy.linear_x] < -0.95)
+          user_target_goal = -1;
+
+
+      if(user_target_goal < 0){
           goal.target_action = goal.CLOSE;
           goal.target_current = 200;
           gripper_open = false;
+          gripper_action.sendGoalAndWait(goal);
+          ros::Duration(0.25).sleep();
+
       }
-      else{
+      else if(user_target_goal > 0){
           goal.target_action = goal.OPEN;
           gripper_open = true;
+          gripper_action.sendGoalAndWait(goal);
+          ros::Duration(0.25).sleep();
       }
-      gripper_action.sendGoalAndWait(goal);
-      ros::Duration(0.25).sleep();
     }
+    
+    last_mode = svenzva_joy.cur_cmd.buttons[svenzva_joy.mode_button];
     ros::Rate(15).sleep();
   }
 
