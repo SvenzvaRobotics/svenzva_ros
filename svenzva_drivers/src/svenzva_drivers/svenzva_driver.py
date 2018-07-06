@@ -47,6 +47,7 @@ from mx_driver import dynamixel_io
 from mx_driver.dynamixel_const import *
 from svenzva_drivers.joint_trajectory_action_controller import *
 from svenzva_drivers.revel_cartesian_controller import *
+from svenzva_drivers.revel_joint_controller import *
 from svenzva_drivers.revel_arm_services import *
 from svenzva_drivers.revel_gripper_server import *
 from svenzva_drivers.svenzva_compliance_controller import *
@@ -286,7 +287,10 @@ class SvenzvaDriver:
 
         mode = rospy.get_param('~mode', "user_defined")
         if mode == 'velocity':
-            cart_server = RevelCartesianController(self.port_namespace, self.dxl_io)
+            #JOINT CONTROLLER
+	    cart_server = RevelJointController(self.port_namespace, self.dxl_io)
+	    #CARTESIAN CONTROLLER
+	    #cart_server = RevelCartesianController(self.port_namespace, self.dxl_io)
             rospy.loginfo("Started Cartesian controller")
 
         compliance_demonstration = False

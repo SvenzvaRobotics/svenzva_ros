@@ -59,8 +59,8 @@ class RevelGripperActionServer():
     def __init__(self, controller_namespace, mx_io):
         self.mx_io = mx_io
         self.motor_id = 7
-        self.closing_force = 150 #mA
-        self.opening_force = -200 #mA
+        self.closing_force = 200 #mA
+        self.opening_force = -175 #mA
         self.moving_distance = 2.0 #rad
         self.open_position = -1.6
 
@@ -138,9 +138,13 @@ class RevelGripperActionServer():
     def open_gripper(self, force):
         cur_pos = 0 #self.motor_state.position
         self.mx_io.set_torque_goal(self.motor_id, force)
-
+	#Set timer to avoid infinite loop	
+	start = rospy.Time.now()
         while( self.motor_state.position > self.open_position):
-            if self._as.is_preempt_requested():
+            if rospy.Time.now() - start > rospy.Duration(0.25):
+		self.mx_io.set_torque_goal(self.motor_id, 0)
+		break
+	    if self._as.is_preempt_requested():
                 rospy.loginfo('Gripper action preempted.')
                 self._as.set_preempted()
                 break
