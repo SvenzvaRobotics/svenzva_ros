@@ -162,7 +162,7 @@ class RevelJointController:
 	    qdot_out[1] = -1 * self.cart_vel.linear.y
 	    qdot_out[2] = self.cart_vel.linear.z
 	    qdot_out[3] = -1 * self.cart_vel.angular.y
-	    qdot_out[4] = self.cart_vel.angular.x
+	    qdot_out[4] = -1 * self.cart_vel.angular.x
 	    qdot_out[5] = self.cart_vel.angular.z
 
             scale_factor = 1
