@@ -16,9 +16,10 @@
 #    copyright notice, this list of conditions and the following
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
-#  * Neither the name of University of Arizona nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
+#  * Neither the name of University of Arizona, Svenzva Robotics LLC,
+#    nor the names of its contributors may be used to endorse or
+#    promote products derived from this software without specific
+#    prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -56,6 +57,7 @@ class Segment():
 
 class JointTrajectoryActionController():
     def __init__(self, controller_namespace, mx_io, states):
+        #set default values
         self.update_rate = 1000
         self.state_update_rate = 50
         self.trajectory = []
@@ -63,7 +65,16 @@ class JointTrajectoryActionController():
         self.mx_io = mx_io
         self.num_joints = 6
         self.controller_namespace = controller_namespace
-        self.joint_names = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
+
+        self.joint_names = rospy.get_param('joint_names', ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6'])
+
+        #trajectory controller does not control finger movements
+        #if finger joints specified, remove them
+        if 'finger_joint_1' in self.joint_names:
+            self.joint_names.remove('finger_joint_1')
+        if 'finger_joint_2' in self.joint_names:
+            self.joint_names.remove('finger_joint_2')
+
         rospy.Subscriber("revel/motor_states", MotorStateList, self.motor_state_cb, queue_size=1)
 
         self.motor_states = []

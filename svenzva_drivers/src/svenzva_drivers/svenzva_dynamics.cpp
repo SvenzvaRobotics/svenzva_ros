@@ -13,7 +13,7 @@
 //    copyright notice, this list of conditions and the following
 //    disclaimer in the documentation and/or other materials provided
 //    with the distribution.
-//  * Neither the name of University of Arizona nor the names of its
+//  * Neither the name of Svenzva Robotics LLC nor the names of its
 //   contributors may be used to endorse or promote products derived
 //    from this software without specific prior written permission.
 //
@@ -44,10 +44,19 @@
 #include <sensor_msgs/JointState.h>
 
 
+/*
+ * SvenzvaDynamics is a ROS component that is used in Kinesthetic Teaching of the Revel robot.
+ *
+ * Given the current robot state, this class uses a dynamic model to estimate the gravity load 
+ * on each joint due to the robot's own physical characteristics.
+ * 
+ * This class has many opportunities for fine-tuning parameters if the force estimation is inaccurate.
+ */
+
 sensor_msgs::JointState joint_states;
 KDL::Tree my_tree;
 KDL::Chain chain;
-int mNumJnts = 6;
+unsigned int mNumJnts = 6;
 // Get some joint pos, vel, acc values
 KDL::JntArray jnt_q(mNumJnts);
 KDL::JntArray jnt_qd(mNumJnts);
@@ -60,7 +69,7 @@ KDL::ChainIdSolver_RNE *gcSolver;
 double alpha = 0.5;
 
 void js_cb(const sensor_msgs::JointState::ConstPtr& msg){
-    for(int i = 0; i < msg->effort.size(); i++){
+    for(unsigned int i = 0; i < msg->effort.size(); i++){
         joint_states.effort[i] = msg->effort[i] * alpha + (1.0 - alpha) * joint_states.effort[i];
     }
     joint_states.position = msg->position;
@@ -79,15 +88,6 @@ void feel_efforts(ros::Publisher tau_pub){
       KDL::Wrench wr = KDL::Wrench();
       if( !first_run) {
         int gr = 1;
-        /*if(i == 0)
-            gr = 4;
-        else if(i == 3)
-            gr = 3;
-        else if( i == 4)
-            gr = 4;
-        else if(i == 1 || i == 2)
-            gr = 7;
-        */
         double diff = model_states.effort[i] - joint_states.effort[i];
         double frc = 0.0;
 
@@ -112,7 +112,7 @@ void feel_efforts(ros::Publisher tau_pub){
     }
     else{
         int divisor = 1;
-        for( int i = 0; i < mNumJnts; i++){
+        for( unsigned int i = 0; i < mNumJnts; i++){
             //Compute the error in the model vs present output torques
             if( i == 1){
                 //spring function: y= -0.000012159725010x^3 + 0.001933370127203x^2 + 0.002502918014389x + 0.075320089110718
@@ -136,10 +136,29 @@ void feel_efforts(ros::Publisher tau_pub){
 
 int main(int argc, char** argv){
     ros::init(argc, argv, "svenzva_dynamics");
-
+    int mNumJntsRegistered = 6;
+    std::vector<std::string> joint_names_ar;
+    std::string chain_end = "link_";
     ros::NodeHandle n;
-    
-    for(int i = 0; i < 7; i++)
+
+    // if a custom build, get the number of motors present and resize arrays 
+    // to make KDL happy. 
+    // Note that a customized robot will need accurate parameters in its URDF in order for grvity 
+    // compensation to be accurate. These changes simply allow KDL to not throw errors.
+    if (n.getParam("num_motors_present", mNumJntsRegistered))
+    {
+      mNumJnts = std::min(mNumJntsRegistered, 6);
+      jnt_q.resize(mNumJnts);
+      jnt_qd.resize(mNumJnts);
+      jnt_qdd.resize(mNumJnts);
+      jnt_taugc.resize(mNumJnts);
+    }
+    else
+    {
+      ROS_INFO("SvenzvaDynamics failed to find num joints parameter. Using default.");
+    }
+
+    for(unsigned int i = 0; i < mNumJnts+1; i++)
         joint_states.effort.push_back(0.0);
 
     ros::Subscriber js_sub = n.subscribe("joint_states", 1, js_cb);
@@ -155,7 +174,8 @@ int main(int argc, char** argv){
        ROS_ERROR("Failed to construct kdl tree");
        return false;
     }
-    my_tree.getChain("base_link", "link_6", chain);
+    chain_end.append(std::to_string(mNumJnts));
+    my_tree.getChain("base_link", chain_end.c_str(), chain);
     ROS_INFO("Kinematic chain expects %d joints", chain.getNrOfJoints());
 
     KDL::Vector gravity(0.0, 0.0, -9.81);
