@@ -1,7 +1,27 @@
 # Svenzva Robotics ROS drivers
 
 This is the active repository for the Svenzva Robotics robotic product line ROS software.
-The `svenzva_ros` package holds all thats needed to get up and running with ROS, including drivers, description    files, simulation files and interactive utilities.
+The `svenzva_ros` package holds all thats needed to get up and running with ROS, including drivers, description files, simulation files and interactive utilities.
+
+#### Disclaimer
+This software is supplied "AS IS" without any warranties and support.
+Svenzva Robotics LLC assumes no responsibility or liability for the use of the software. 
+Svenzva Robotics LLC reserves the right to make changes in the software without notification. 
+
+#### Notes on robot starting position
+The Revel **must** be powered on in a particular orientation to correctly initialize the robot's motors. Generally the robot should be upright, but for the revolute joints (Joint 1, Joint 4, Joint 6) you must also consider the direction of the cable.
+
+Here are reference photos of the Revel robot lined up to be powered on.
+
+<img src="http://svenzva.com/wp-content/uploads/robot_starting_position.jpg" alt="Revel start position" width="250" align="middle"/>
+<img src="http://svenzva.com/wp-content/uploads/revel_starting_position_2.jpg" alt="Revel start position, joint 6" width="250" align="right"/>
+<img src="http://svenzva.com/wp-content/uploads/revel_starting_position_3.jpg" alt="Revel start position, joints 4 & 5" width="200" align="right"/>
+
+Note the cord direction for the indicated joints **1a**, **1b** and **1c**. 
+
+Prior to powering on the robot, move each joint to match that of the reference photo. Each joint should be started within ~40 degrees of the position indicated.
+
+Failure to follow this step can cause the robot to crash into itself or the environment.
 
 
 ### Prerequisites
