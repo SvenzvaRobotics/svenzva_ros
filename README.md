@@ -28,16 +28,21 @@ Failure to follow this step can cause the robot to crash into itself or the envi
 
 Our testing platform is ROS Indigo with 14.04 and ROS Kinetic 16.04. You must have either of these installed or  have access to a system with ROS installed to use this ROS package.
 You can find out more about installing ROS [here](http://wiki.ros.org/kinetic/Installation).
+The following instructions assume you have a [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace) setup and have [configured your environment](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment) (Section 3) to source that workspace.
 
 ### Installing
 
 These instructions will get you a copy of the ROS package and its dependencies on your local machine.
 
-Clone the repository into an existing workspace
+Clone the repository into the src folder of your workspace:
 ```
 git clone https://github.com/SvenzvaRobotics/svenzva_ros.git
 ```
-Use wstool to grab github source dependencies:
+cd into the root of your workspace 
+```
+cd ~/WORKSPACE_NAME
+```
+and use wstool to grab github source dependencies:
 ```
 wstool init src PATH_TO_ROSINSTALL_FILE.rosinstall
 ```
@@ -51,6 +56,14 @@ rosdep install --from-paths ./ --ignore-src --rosdistro=$ROS_DISTRO -y
 Next, install any python dependencies:
 ```
 pip install yamlordereddictloader
+```
+Finally, compile your workspace
+```
+cd ~/WORKSPACE_NAME && catkin_make
+```
+After successfully compiling, you may need to source your `.bashrc` file before running the `svenzva_ros` stack for the first time IF your .bashrc is configured to source the workspace
+```
+source ~/.bashrc
 ```
 
 ## Deployment
