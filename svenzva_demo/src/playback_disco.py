@@ -37,7 +37,7 @@ import rospkg
 import yaml
 from svenzva_utils.kinesthetic_teaching_console import *
 from svenzva_msgs.msg import *
-from svenzva_drivers.srv import *
+from svenzva_msgs.srv import *
 
 
 """

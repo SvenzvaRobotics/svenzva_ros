@@ -34,25 +34,51 @@
 
 import rospy
 import rospkg
-import actionlib
-import yaml
-from std_msgs.msg import Bool
-from svenzva_msgs.msg import *
-from trajectory_msgs.msg import JointTrajectoryPoint
-from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction,            FollowJointTrajectoryGoal
+import math
 from sensor_msgs.msg import JointState
-from std_msgs.msg import Int32
-from collections import deque
+from geometry_msgs.msg import Twist
 
-rospy.init_node('svenzva_pick_place_demo', anonymous=False)
-gripper_client = actionlib.SimpleActionClient('/revel/gripper_action', GripperAction)
-gripper_client.wait_for_server()
-rospy.loginfo("Found Revel gripper action server")
+"""
+This demonstration controls the end effector to move in a circle through cartesian velocity commands
+To control the end effector through cartesian velocity, the robot must be in velocity mode.
 
-goal = GripperGoal()
+"""
 
-goal.target_current = 500
-goal.target_action = goal.CLOSE
-gripper_client.send_goal(goal)
+def send_movement_cmds():
+    global vel_pub
+    i = 0
+    angle_resolution = 5
+    d_angle = angle_resolution*3.14/180
+    angle= 0
+    radius = 10
+    x_center = 0
+    y_center = 0
+    twst_cmd = Twist()
+    rospy.loginfo("Sending velocity commands.")
+    while i < (360/angle_resolution):
+        angle+= d_angle;
+        ee_x = x_center + radius*math.cos(angle);
+        ee_y = y_center + radius* math.sin(angle);
+        twst_cmd.linear.x = ee_x
+        twst_cmd.linear.z = ee_y
+        vel_pub.publish(twst_cmd)
+        rospy.loginfo(twst_cmd)
+        rospy.sleep(0.05)
+        i+=1
+    vel_pub.publish(Twist())
 
-rospy.loginfo("Sent gripper command: CLOSE")
+def setup():
+    global vel_pub
+    rospy.init_node('revel_circular_eef', anonymous=False)
+
+    vel_pub = rospy.Publisher('/revel/eef_velocity', Twist, queue_size=1)
+    #joint_states_sub = rospy.Subscriber('/joint_states', JointState, js_cb, queue_size=1)
+
+    rospy.loginfo("Setting up Revel Circle Movement program")
+
+if __name__ == '__main__':
+    try:
+        setup()
+        send_movement_cmds()
+    except rospy.ROSInterruptException:
+        pass

@@ -46,7 +46,7 @@ import string
 
 from std_msgs.msg import Bool, Int32
 from svenzva_msgs.msg import *
-from svenzva_drivers.srv import *
+from svenzva_msgs.srv import *
 from trajectory_msgs.msg import JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction,            FollowJointTrajectoryGoal
 from sensor_msgs.msg import JointState

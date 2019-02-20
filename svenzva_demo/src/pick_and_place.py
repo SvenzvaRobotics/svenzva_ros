@@ -37,13 +37,18 @@ import rospkg
 import actionlib
 import yaml
 from std_msgs.msg import Bool
-from dynamixel_controllers.srv import *
 from svenzva_msgs.msg import *
-from svenzva_drivers.srv import *
+from svenzva_msgs.srv import *
 from trajectory_msgs.msg import JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction,            FollowJointTrajectoryGoal
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Int32
+
+"""
+Plays back poses from an interaction file and controls the gripper as an Action
+
+"""
+
 
 #sends a j6 command as specified in the given yaml file.
 #files must exist in the config directory of the demo package
