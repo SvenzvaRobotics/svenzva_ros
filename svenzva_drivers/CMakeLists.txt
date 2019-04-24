@@ -23,16 +23,11 @@ find_package(catkin REQUIRED COMPONENTS
 
 #kdl is cmake only. Must be separte
 #find_package( orocos_kdl REQUIRED)
-find_package( Eigen REQUIRED)
+find_package( Eigen3 REQUIRED)
 
 
 catkin_python_setup()
 
-generate_messages(
-   DEPENDENCIES
-   actionlib_msgs
-   std_msgs
-)
 generate_dynamic_reconfigure_options( config/RevelFirmwareDynamic.cfg)
 
 catkin_package(
@@ -48,5 +43,5 @@ add_executable(svenzva_cartesian src/svenzva_drivers/revel_cartesian_vel.cpp)
 add_dependencies(svenzva_cartesian svenzva_msgs_generate_messages_cpp)
 target_link_libraries(svenzva_cartesian ${catkin_LIBRARIES})
 
-add_executable(dynamixel_control_hw src/ros_control/dynamixel_control_hw.cpp src/ros_control/dynamixel_loop.cpp src/ros_control/dynamixel_hardware_interface.cpp)
-target_link_libraries(dynamixel_control_hw ${catkin_LIBRARIES})
+#add_executable(dynamixel_control_hw src/ros_control/dynamixel_control_hw.cpp src/ros_control/dynamixel_loop.cpp src/ros_control/dynamixel_hardware_interface.cpp)
+#target_link_libraries(dynamixel_control_hw ${catkin_LIBRARIES})
