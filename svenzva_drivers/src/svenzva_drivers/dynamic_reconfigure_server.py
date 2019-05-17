@@ -60,6 +60,7 @@ Author: Maxwell Svetlik
 import rospy
 
 from dynamic_reconfigure.server import Server
+from std_srvs.srv import Empty
 from svenzva_drivers.cfg import RevelFirmwareDynamicConfig
 
 
@@ -71,22 +72,31 @@ class RevelDynamicParameterServer():
         self.mx_io = mx_io
         self.controller_namespace = controller_namespace
         self.gr = [4,7,7,3,4,1,1]
+
+    def set_last_configuration(self):
+        config = self.last_configuration
+        self.set_acceleration_profile(config.joint_acc_limit)
+        self.set_velocity_profile(config.joint_vel_limit)
+        self.set_position_PID(1, config.joint_1_P, config.joint_1_I, config.joint_1_D, config.joint_1_Feedforward1_velocity, config.joint_1_Feedforward2_acceleration, config.joint_1_velocity_P, config.joint_1_velocity_I)
+        self.set_position_PID(2, config.joint_2_P, config.joint_2_I, config.joint_2_D, config.joint_2_Feedforward1_velocity, config.joint_2_Feedforward2_acceleration, config.joint_2_velocity_P, config.joint_2_velocity_I)
+        self.set_position_PID(3, config.joint_3_P, config.joint_3_I, config.joint_3_D, config.joint_3_Feedforward1_velocity, config.joint_3_Feedforward2_acceleration, config.joint_3_velocity_P, config.joint_3_velocity_I)
+        self.set_position_PID(4, config.joint_4_P, config.joint_4_I, config.joint_4_D, config.joint_4_Feedforward1_velocity, config.joint_4_Feedforward2_acceleration, config.joint_4_velocity_P, config.joint_4_velocity_I)
+        self.set_position_PID(5, config.joint_5_P, config.joint_5_I, config.joint_5_D, config.joint_5_Feedforward1_velocity, config.joint_5_Feedforward2_acceleration, config.joint_5_velocity_P, config.joint_5_velocity_I)
+        self.set_position_PID(6, config.joint_6_P, config.joint_6_I, config.joint_6_D, config.joint_6_Feedforward1_velocity, config.joint_6_Feedforward2_acceleration, config.joint_6_velocity_P, config.joint_6_velocity_I)
+        self.set_position_PID(7, config.joint_7_P, config.joint_7_I, config.joint_7_D, config.joint_7_Feedforward1_velocity, config.joint_7_Feedforward2_acceleration, config.joint_7_velocity_P, config.joint_7_velocity_I)
+        return self.last_configuration
+
+    def set_current_config(self, data):
+        self.set_last_configuration()
+        return []
+
     def callback(self, config, level):
         #first run
         if self.is_first_configuration:
             self.last_configuration = config.copy()
             self.is_first_configuration = False
             # load initial values
-            self.set_acceleration_profile(config.joint_acc_limit)
-            self.set_velocity_profile(config.joint_vel_limit)
-            self.set_position_PID(1, config.joint_1_P, config.joint_1_I, config.joint_1_D, config.joint_1_Feedforward1_velocity, config.joint_1_Feedforward2_acceleration, config.joint_1_velocity_P, config.joint_1_velocity_I)
-            self.set_position_PID(2, config.joint_2_P, config.joint_2_I, config.joint_2_D, config.joint_2_Feedforward1_velocity, config.joint_2_Feedforward2_acceleration, config.joint_2_velocity_P, config.joint_2_velocity_I)
-            self.set_position_PID(3, config.joint_3_P, config.joint_3_I, config.joint_3_D, config.joint_3_Feedforward1_velocity, config.joint_3_Feedforward2_acceleration, config.joint_3_velocity_P, config.joint_3_velocity_I)
-            self.set_position_PID(4, config.joint_4_P, config.joint_4_I, config.joint_4_D, config.joint_4_Feedforward1_velocity, config.joint_4_Feedforward2_acceleration, config.joint_4_velocity_P, config.joint_4_velocity_I)
-            self.set_position_PID(5, config.joint_5_P, config.joint_5_I, config.joint_5_D, config.joint_5_Feedforward1_velocity, config.joint_5_Feedforward2_acceleration, config.joint_5_velocity_P, config.joint_5_velocity_I)
-            self.set_position_PID(6, config.joint_6_P, config.joint_6_I, config.joint_6_D, config.joint_6_Feedforward1_velocity, config.joint_6_Feedforward2_acceleration, config.joint_6_velocity_P, config.joint_6_velocity_I)
-            self.set_position_PID(7, config.joint_7_P, config.joint_7_I, config.joint_7_D, config.joint_7_Feedforward1_velocity, config.joint_7_Feedforward2_acceleration, config.joint_7_velocity_P, config.joint_7_velocity_I)
-            return config
+            return self.set_last_configuration()
 
         #if user hasn't enabled parameter control, do not process parameter changes
         if not config.enable_parameter_control:
@@ -150,6 +160,7 @@ class RevelDynamicParameterServer():
 
     def start(self):
         srv = Server(RevelFirmwareDynamicConfig, self.callback)
+        last_config_srv = rospy.Service('revel/reload_firmware_parameters', Empty, self.set_current_config)
         rospy.spin()
 
 if __name__ == "__main__":

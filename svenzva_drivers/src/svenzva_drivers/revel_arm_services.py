@@ -88,7 +88,6 @@ class RevelArmServices():
 
             #switch to position mode for simplicity
             self.mx_io.set_torque_enabled(7, 0)
-            self.mx_io.set_operation_mode(7, 4)
             self.mx_io.set_torque_enabled(7, 1)
 
             self.mx_io.set_position(7, int(round(self.reset_pos * 4096.0 / 6.2831853)))
@@ -136,12 +135,13 @@ class RevelArmServices():
         self.mx_io.sync_set_torque_enabled(tup_list_dis)
         self.mx_io.sync_set_operation_mode(tup_list_op)
         self.mx_io.sync_set_torque_enabled(tup_list_en)
+	self.reset_motor_parmeters()
         return True
 
     def torque_enable_cb(self, data):
         if len(data.motor_list) !=  self.num_motors:
             rospy.logerr("SetTorqueEnable: input motor_list is not the right length. Aborting.")
-            data.success = False
+            #data.success = False
             return
         for i, val in enumerate(data.motor_list):
             if val > 1 or val < 0:
@@ -149,7 +149,7 @@ class RevelArmServices():
                 val = 1
             self.mx_io.set_torque_enabled(i+1, val)
             rospy.sleep(0.01)
-
+	self.reset_motor_parmeters()
     def torque_goal_cb(self, data):
         if len(data.data) != self.num_motors:
             rospy.logerr("SetTorqueEnable: input motor_list is not the right length. Aborting.")
@@ -163,6 +163,17 @@ class RevelArmServices():
     def start(self):
         rospy.loginfo("Starting RevelArmServices...")
         rospy.spin()
+
+    """
+       Calls a service that restores the control parameters for each motor, which get reset to defaults when torque is
+	disabled, which happes when a user changes modes or dis/enables torque
+    """
+    def reset_motor_parmeters(self):
+	try:
+	    reset_motor_param = rospy.ServiceProxy('/revel/reload_firmware_parameters', Empty)
+	    return reset_motor_param()
+	except rospy.ServiceException, e:
+	    rospy.loginfo("Unable to reset motor parmeters after context change... call failed: %s"%e)
 
 
     def home_arm(self, data):
