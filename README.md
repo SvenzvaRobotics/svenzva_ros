@@ -40,8 +40,9 @@ Clone the repository into the src folder of your workspace:
 ```
 cd c:\catkin_ws\src
 
-git clone https://github.com/SvenzvaRobotics/svenzva_ros.git
+git clone -b init_windows https://github.com/SvenzvaRobotics/svenzva_ros.git
 ```
+
 cd into the root of your workspace 
 ```
 cd c:\catkin_ws
