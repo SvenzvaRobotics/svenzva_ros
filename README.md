@@ -1,7 +1,10 @@
-# Svenzva Robotics ROS drivers
+# Svenzva Robotics ROS drivers for ROS on Windows
 
 This is the active repository for the Svenzva Robotics robotic product line ROS software.
 The `svenzva_ros` package holds all thats needed to get up and running with ROS, including drivers, description files, simulation files and interactive utilities.
+
+This branch is for use on a Windows 10 system with ROS on Windows installed.
+The driver is not 1-for-1 when running on Linux vs Windows, i.e. some features are missing on ROS on Windows, including but not limted to: gravity compensation
 
 #### Disclaimer
 This software is supplied "AS IS" without any warranties and support.
@@ -26,9 +29,8 @@ Failure to follow this step can cause the robot to crash into itself or the envi
 
 ### Prerequisites
 
-Our testing platform is ROS Indigo with 14.04 and ROS Kinetic 16.04. You must have either of these installed or  have access to a system with ROS installed to use this ROS package.
-You can find out more about installing ROS [here](http://wiki.ros.org/kinetic/Installation).
-The following instructions assume you have a [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace) setup and have [configured your environment](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment) (Section 3) to source that workspace.
+Our testing platform is ROS on Windows on a Windows 10 machine. 
+You can find out more about installing ROS on Windows [here](https://svenzva.com/installing-and-running-ros-on-windows/).
 
 ### Installing
 
@@ -36,17 +38,25 @@ These instructions will get you a copy of the ROS package and its dependencies o
 
 Clone the repository into the src folder of your workspace:
 ```
+cd c:\catkin_ws\src
+
 git clone https://github.com/SvenzvaRobotics/svenzva_ros.git
 ```
 cd into the root of your workspace 
 ```
-cd ~/WORKSPACE_NAME
+cd c:\catkin_ws
 ```
 and use wstool to grab github source dependencies:
 ```
 wstool init src PATH_TO_ROSINSTALL_FILE.rosinstall
 ```
 where the rosinstall file desired is the __dependencies.rosinstall__ file in the root of the `svenzva_ros` package.
+
+For now, you need to manually install MoveIt as its rosdeps don't get resolved otherwise.
+
+```
+choco upgrade ros-melodic-moveit -y
+```
 
 Finally, use rosdep to resolve dependencies specified in package descriptors:
 ```
@@ -56,14 +66,15 @@ rosdep install --from-paths ./ --ignore-src --rosdistro=$ROS_DISTRO -y
 Next, install any python dependencies:
 ```
 pip install yamlordereddictloader
+pip install pandas
 ```
 Finally, compile your workspace
 ```
 cd ~/WORKSPACE_NAME && catkin_make
 ```
-After successfully compiling, you may need to source your `.bashrc` file before running the `svenzva_ros` stack for the first time IF your .bashrc is configured to source the workspace
+After successfully compiling, you may need to source your `setup.bash` file before running the `svenzva_ros` stack for the first time
 ```
-source ~/.bashrc
+source c:\catkin_ws\devel\setup.bat
 ```
 
 ## Deployment
