@@ -24,6 +24,7 @@
   <run_depend>joint_state_publisher</run_depend>
   <run_depend>robot_state_publisher</run_depend>
   <run_depend>xacro</run_depend>
+  <build_depend>moveit</build_depend>
   <build_depend>svenzva_description</build_depend>
   <run_depend>svenzva_description</run_depend>
 
